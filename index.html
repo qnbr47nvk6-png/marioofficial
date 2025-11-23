@@ -13,14 +13,53 @@
     <!-- Font: Coiny (Supports Vietnamese & Game style) -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Coiny&display=swap');
-        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
-        #root { width: 100vw; height: 100vh; }
+        @import url('https://fonts.googleapis.com/css2?family=Calibri:wght@400;700&display=swap');
+        
+        /* Reset & Base */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #000; 
+            overflow: hidden; /* Prevent body scroll, handle inside app */
+            touch-action: pan-y; /* Allow vertical scroll on non-game elements */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #root { 
+            width: 100vw; 
+            height: 100dvh; /* Dynamic viewport height for mobile browsers */
+            position: relative;
+            overflow: hidden;
+        }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Utility class to handle landscape on small phones if needed specifically */
+        /* Scrollable Container Utility */
+        .scrollable-content {
+            max-height: 90dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #FFD700 rgba(0,0,0,0.3);
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Custom Scrollbar */
+        .scrollable-content::-webkit-scrollbar { width: 8px; }
+        .scrollable-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .scrollable-content::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
+
+        /* Responsive adjustments */
         @media (max-height: 500px) and (orientation: landscape) {
             .game-controls { bottom: 10px !important; }
-            .game-status-bar { height: 40px !important; }
+            .game-status-bar { height: 40px !important; font-size: 14px !important; }
+            .start-title { font-size: 2.5rem !important; margin-bottom: 10px !important; }
+            .input-container { margin-bottom: 10px !important; }
         }
     </style>
 <script type="importmap">
@@ -46,7 +85,7 @@
         const GAME_WIDTH = 1600;
         const GAME_HEIGHT = 900;
 
-        // Physics tuned for responsiveness (Zero Delay)
+        // Physics tuned for responsiveness
         const GRAVITY = 0.7; 
         const JUMP_POWER = 18; 
         const SPEED = 1.2; 
@@ -161,7 +200,7 @@
                 });
             }
 
-            // 5b. TITLE ART (Mario vs Dragon) - IMPROVED
+            // 5b. TITLE ART
             if (!assetCache['title_art']) {
                 assetCache['title_art'] = createOffscreenCanvas(1600, 900, ctx => {
                     // 1. Background (Dramatic Sky)
@@ -238,7 +277,7 @@
                     // Body
                     ctx.fillStyle = '#3751E0';
                     ctx.fillRect(-5, 30, 35, 25);
-                    // Arms (Raised holding something?)
+                    // Arms
                     ctx.fillStyle = '#E52521';
                     ctx.fillRect(25, 30, 10, 20); // Right arm
                     
@@ -467,6 +506,7 @@
             const [playerName, setPlayerName] = useState("Người chơi");
             const [selectedOption, setSelectedOption] = useState(null);
             const [feedback, setFeedback] = useState(null);
+            const [isFullscreen, setIsFullscreen] = useState(false);
             
             useBackgroundMusic(level, soundEnabled, gameState === 'INTRO_CINEMATIC');
 
@@ -493,6 +533,28 @@
                 particles: [],
                 weather: { rain: false, storm: false, night: false, flash: 0, sun: {x: 0, y: 0} }
             });
+
+            const toggleFullscreen = () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().then(() => {
+                        setIsFullscreen(true);
+                        // Attempt to lock to landscape
+                        if (screen.orientation && screen.orientation.lock) {
+                            screen.orientation.lock('landscape').catch(err => console.log("Orientation lock failed", err));
+                        }
+                    }).catch(err => {
+                        console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                        setIsFullscreen(false);
+                        if (screen.orientation && screen.orientation.unlock) {
+                            screen.orientation.unlock();
+                        }
+                    }
+                }
+            };
 
             const initLevel = useCallback((lvl) => {
                 const eng = engine.current;
@@ -1305,7 +1367,7 @@
             const currentQIndex = (level - 1) * 2 + questionsAnsweredInLevel;
 
             return (
-                <div style={{ width: '100vw', height: '100vh', background: '#000', overflow: 'hidden', position: 'relative', touchAction: 'none' }}>
+                <div style={{ width: '100vw', height: '100dvh', background: '#000', overflow: 'hidden', position: 'relative', touchAction: 'none' }}>
                     <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                     
                     {gameState === 'PLAYING' && (
@@ -1316,6 +1378,9 @@
                             <div style={s.statusItem}>🚩 Màn {level}/5</div>
                             <div style={{...s.statusItem, cursor: 'pointer'}} onClick={() => setSoundEnabled(!soundEnabled)}>
                                 {soundEnabled ? '🔊 Bật' : '🔇 Tắt'}
+                            </div>
+                            <div style={{...s.statusItem, cursor: 'pointer'}} onClick={toggleFullscreen}>
+                                {isFullscreen ? '🗗' : '⛶'}
                             </div>
                         </div>
                         
@@ -1334,25 +1399,27 @@
                             <div style={{position: 'absolute', top:0, left:0, width:'100%', height:'100%', zIndex:-1}}>
                                 <canvas ref={titleRef} width={1600} height={900} style={{width:'100%', height:'100%', objectFit:'cover'}} />
                             </div>
-                            <h1 style={{ fontFamily: "'Calibri', sans-serif", fontSize: 'clamp(3rem, 8vw, 5rem)', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
-                            <div style={{ background: 'rgba(0,0,0,0.6)', padding: '30px', borderRadius: '15px', backdropFilter: 'blur(10px)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
-                                <input 
-                                    type="text" 
-                                    value={playerName} 
-                                    onFocus={() => { if(playerName === "Người chơi") setPlayerName("") }}
-                                    onChange={e => setPlayerName(e.target.value)} 
-                                    style={{ fontSize: '1.5rem', padding: '10px', textAlign: 'center', borderRadius: '10px', border: '1px solid #AAA', width: '300px', background: 'rgba(255,255,255,0.9)', color: '#333' }} 
-                                    maxLength={12} 
-                                />
+                            <div className="scrollable-content">
+                                <h1 className="start-title" style={{ fontFamily: "'Calibri', sans-serif", fontSize: 'clamp(3rem, 8vw, 5rem)', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
+                                <div className="input-container" style={{ background: 'rgba(0,0,0,0.6)', padding: '30px', borderRadius: '15px', backdropFilter: 'blur(10px)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
+                                    <input 
+                                        type="text" 
+                                        value={playerName} 
+                                        onFocus={() => { if(playerName === "Người chơi") setPlayerName("") }}
+                                        onChange={e => setPlayerName(e.target.value)} 
+                                        style={{ fontSize: '1.5rem', padding: '10px', textAlign: 'center', borderRadius: '10px', border: '1px solid #AAA', width: '300px', background: 'rgba(255,255,255,0.9)', color: '#333' }} 
+                                        maxLength={12} 
+                                    />
+                                </div>
+                                <button style={s.btn} onClick={handleStartClick}>BẮT ĐẦU</button>
+                                <p style={{ marginTop: '20px', fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 2px black' }}>Nhập tên và nhấn Bắt Đầu</p>
                             </div>
-                            <button style={s.btn} onClick={handleStartClick}>BẮT ĐẦU</button>
-                            <p style={{ marginTop: '20px', fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 2px black' }}>Nhập tên và nhấn Bắt Đầu</p>
                         </div>
                     )}
 
                     {gameState === 'INSTRUCTIONS' && (
                         <div style={s.overlay}>
-                            <div style={{ background: 'rgba(0,0,0,0.9)', padding: '40px', borderRadius: '20px', maxWidth: '800px', width: '90%', border: '2px solid #FFD700', textAlign: 'center', animation: 'fadeIn 0.5s', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div className="scrollable-content" style={{ background: 'rgba(0,0,0,0.9)', padding: '40px', borderRadius: '20px', maxWidth: '800px', width: '90%', border: '2px solid #FFD700', textAlign: 'center', animation: 'fadeIn 0.5s' }}>
                                 <h2 style={{color: '#FFD700', fontSize: '2.5rem', marginBottom: '20px'}}>CỐT TRUYỆN & HƯỚNG DẪN</h2>
                                 
                                 <div style={{textAlign: 'left', marginBottom: '30px', background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '10px'}}>
@@ -1364,7 +1431,7 @@
                                     </p>
                                 </div>
 
-                                <div style={{display: 'flex', justifyContent: 'space-around', margin: '30px 0', borderTop: '1px solid #555', paddingTop: '20px'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-around', margin: '30px 0', borderTop: '1px solid #555', paddingTop: '20px', width: '100%'}}>
                                     <div style={{textAlign: 'center'}}>
                                         <div style={{fontSize: '40px', marginBottom: '10px'}}>⬅️ ➡️</div>
                                         <div style={{fontWeight: 'bold', color: '#87CEEB'}}>DI CHUYỂN</div>
@@ -1392,13 +1459,13 @@
 
                     {gameState === 'QUESTION' && (
                         <div style={s.overlay}>
-                            <div style={{ background: 'rgba(0,0,0,0.95)', padding: '40px', borderRadius: '20px', width: '90%', maxWidth: '900px', border: '2px solid #FFD700', boxShadow: '0 0 30px rgba(255, 215, 0, 0.2)', maxHeight: '90vh', overflowY: 'auto' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px' }}>
+                            <div className="scrollable-content" style={{ background: 'rgba(0,0,0,0.95)', padding: '40px', borderRadius: '20px', width: '90%', maxWidth: '900px', border: '2px solid #FFD700', boxShadow: '0 0 30px rgba(255, 215, 0, 0.2)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px', width: '100%' }}>
                                     <h2 style={{ color: '#FFD700', margin: 0, fontSize: 'clamp(1.2rem, 3vw, 2rem)' }}>Thử Thách Hóa Học</h2>
                                     <span style={{ color: '#AAA' }}>Câu {questionsAnsweredInLevel + 1}/2</span>
                                 </div>
                                 <p style={{ fontSize: '1.5rem', lineHeight: '1.5', margin: '30px 0', fontWeight: 'bold' }}>{QUESTIONS[currentQIndex].text}</p>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', width: '100%' }}>
                                     {QUESTIONS[currentQIndex].options.map((opt, idx) => (
                                         <div key={idx} 
                                             onClick={() => !feedback && setSelectedOption(idx)}
@@ -1427,18 +1494,20 @@
 
                     {gameState === 'END' && (
                         <div style={s.overlay}>
-                            <h1 style={{ fontSize: '5rem', color: '#FFD700', ...s.textShadow, marginBottom: '20px' }}>CHIẾN THẮNG!</h1>
-                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '40px', borderRadius: '20px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
-                                <p style={{ fontSize: '2rem', margin: '10px 0' }}>Chúc mừng <b>{playerName}</b></p>
-                                <p style={{ fontSize: '1.5rem' }}>Bạn đã giải cứu công chúa Peach!</p>
-                                <div style={{ fontSize: '3rem', color: '#4CAF50', margin: '30px 0', fontWeight: 'bold' }}>{score} ĐIỂM</div>
+                            <div className="scrollable-content" style={{justifyContent:'center'}}>
+                                <h1 style={{ fontSize: '5rem', color: '#FFD700', ...s.textShadow, marginBottom: '20px' }}>CHIẾN THẮNG!</h1>
+                                <div style={{ background: 'rgba(255,255,255,0.1)', padding: '40px', borderRadius: '20px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                                    <p style={{ fontSize: '2rem', margin: '10px 0' }}>Chúc mừng <b>{playerName}</b></p>
+                                    <p style={{ fontSize: '1.5rem' }}>Bạn đã giải cứu công chúa Peach!</p>
+                                    <div style={{ fontSize: '3rem', color: '#4CAF50', margin: '30px 0', fontWeight: 'bold' }}>{score} ĐIỂM</div>
+                                </div>
+                                <button style={s.btn} onClick={() => {
+                                    setLevel(1);
+                                    setScore(0);
+                                    setQuestionsAnsweredInLevel(0);
+                                    setGameState('START'); 
+                                }}>CHƠI LẠI</button>
                             </div>
-                            <button style={s.btn} onClick={() => {
-                                setLevel(1);
-                                setScore(0);
-                                setQuestionsAnsweredInLevel(0);
-                                setGameState('START'); 
-                            }}>CHƠI LẠI</button>
                         </div>
                     )}
                 </div>
