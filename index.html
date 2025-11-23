@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,9 +10,9 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <!-- Babel for JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Font -->
+    <!-- Font: Coiny (Supports Vietnamese & Game style) -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Coiny&display=swap');
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
         #root { width: 100vw; height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -489,6 +490,7 @@
 
             const initLevel = useCallback((lvl) => {
                 const eng = engine.current;
+                eng.keys = { left: false, right: false, up: false }; // Fix stuck keys on new level
                 eng.player.x = 100;
                 eng.player.y = 500;
                 eng.player.vx = 0;
@@ -648,6 +650,7 @@
                 eng.player.vy = 0;
                 eng.player.direction = 1;
                 eng.camera.x = 0;
+                eng.keys = { left: false, right: false, up: false }; // Fix stuck keys on death/reset
                 setScore(s => Math.max(0, s - 20)); 
                 playSound('lose');
                 createParticles(eng.player.x, eng.player.y, '#F00');
@@ -767,9 +770,11 @@
                         ctx.fillStyle = '#FFF';
                         ctx.strokeStyle = '#000';
                         ctx.lineWidth = 2;
-                        ctx.beginPath(); ctx.ellipse((mX+pX)/2 + 25, meetY - 80, 140, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                        // Raised bubble higher
+                        ctx.beginPath(); ctx.ellipse((mX+pX)/2 + 25, meetY - 110, 140, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
                         ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
-                        ctx.fillText("Cảm ơn hoàng tử!", (mX+pX)/2 + 25, meetY - 75);
+                        // Centered text in new bubble position
+                        ctx.fillText("Cảm ơn hoàng tử!", (mX+pX)/2 + 25, meetY - 105);
                     }
                 };
 
@@ -1041,9 +1046,9 @@
                     const mtn = assetCache['mountain'];
                     if (mtn) {
                         eng.mountains.forEach(m => {
-                            const xPos = m.x % (GAME_WIDTH * 2);
-                            ctx.drawImage(mtn, xPos, m.y, 400 * m.scale, 300 * m.scale);
-                            if (xPos < 0) ctx.drawImage(mtn, xPos + GAME_WIDTH * 2, m.y, 400 * m.scale, 300 * m.scale);
+                             const xPos = m.x % (GAME_WIDTH * 2);
+                             ctx.drawImage(mtn, xPos, m.y, 400 * m.scale, 300 * m.scale);
+                             if (xPos < 0) ctx.drawImage(mtn, xPos + GAME_WIDTH * 2, m.y, 400 * m.scale, 300 * m.scale);
                         });
                     }
                     ctx.restore();
@@ -1238,6 +1243,8 @@
                 } else {
                     setFeedback('wrong');
                     playSound('lose');
+                    // Force reset keys to prevent sticking
+                    engine.current.keys = { left: false, right: false, up: false };
                     setTimeout(() => {
                         setFeedback(null);
                         setGameState('PLAYING');
@@ -1293,7 +1300,7 @@
                             <div style={{position: 'absolute', top:0, left:0, width:'100%', height:'100%', zIndex:-1}}>
                                 <canvas ref={titleRef} width={1600} height={900} style={{width:'100%', height:'100%', objectFit:'cover'}} />
                             </div>
-                            <h1 style={{ fontFamily: "'Ruslan Display', cursive", fontSize: '5rem', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
+                            <h1 style={{ fontFamily: "'Calibri', sans-serif", fontSize: '5rem', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
                             <div style={{ background: 'rgba(0,0,0,0.6)', padding: '30px', borderRadius: '15px', backdropFilter: 'blur(10px)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
                                 <input 
                                     type="text" 
