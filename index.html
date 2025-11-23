@@ -3,7 +3,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Mario Dũng Sĩ Hóa Học</title>
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -16,6 +16,12 @@
         body { margin: 0; padding: 0; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
         #root { width: 100vw; height: 100vh; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Utility class to handle landscape on small phones if needed specifically */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-controls { bottom: 10px !important; }
+            .game-status-bar { height: 40px !important; }
+        }
     </style>
 <script type="importmap">
 {
@@ -1258,14 +1264,42 @@
                 btn: { padding: '15px 40px', fontSize: '22px', background: 'linear-gradient(to bottom, #FF6347, #B22222)', border: 'none', borderRadius: '30px', color: 'white', marginTop: '20px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', fontWeight: 'bold' },
                 textShadow: { textShadow: '2px 2px 4px rgba(0,0,0,0.8)' },
                 statusBar: { 
-                    position: 'absolute', top: 0, left: 0, width: '100%', height: '60px', 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: 0, 
+                    width: '100%', 
+                    height: 'auto',
+                    minHeight: '60px', 
                     background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0))', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px',
-                    fontFamily: 'Segoe UI, sans-serif', fontWeight: 'bold', fontSize: '20px', color: '#FFF',
-                    zIndex: 10, boxSizing: 'border-box'
+                    display: 'flex', 
+                    alignItems: 'flex-start', 
+                    justifyContent: 'space-between', 
+                    // Responsive Safe Area Insets
+                    paddingTop: 'max(10px, env(safe-area-inset-top))', 
+                    paddingLeft: 'max(30px, env(safe-area-inset-left))',
+                    paddingRight: 'max(30px, env(safe-area-inset-right))',
+                    paddingBottom: '10px',
+                    fontFamily: 'Segoe UI, sans-serif', 
+                    fontWeight: 'bold', 
+                    fontSize: 'clamp(14px, 2vw, 20px)', 
+                    color: '#FFF',
+                    zIndex: 10, 
+                    boxSizing: 'border-box',
+                    pointerEvents: 'none' 
                 },
-                statusItem: { display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.15)', padding: '5px 15px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.3)' },
-                ctrlBtn: { width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '40px', userSelect: 'none', backdropFilter: 'blur(5px)' }
+                statusItem: { 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '10px', 
+                    background: 'rgba(255,255,255,0.15)', 
+                    padding: '5px 15px', 
+                    borderRadius: '20px', 
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    pointerEvents: 'auto' 
+                },
+                ctrlBtn: { width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '40px', userSelect: 'none', backdropFilter: 'blur(5px)' },
+                gameControls: { position: 'absolute', bottom: 'max(30px, env(safe-area-inset-bottom))', left: 'max(30px, env(safe-area-inset-left))', display: 'flex', gap: 20, zIndex: 10 },
+                gameJumpBtn: { position: 'absolute', bottom: 'max(30px, env(safe-area-inset-bottom))', right: 'max(30px, env(safe-area-inset-right))', zIndex: 10 }
             };
 
             const currentQIndex = (level - 1) * 2 + questionsAnsweredInLevel;
@@ -1276,7 +1310,7 @@
                     
                     {gameState === 'PLAYING' && (
                         <React.Fragment>
-                        <div style={s.statusBar}>
+                        <div style={s.statusBar} className="game-status-bar">
                             <div style={s.statusItem}>👤 {playerName}</div>
                             <div style={s.statusItem}>⭐ {score}</div>
                             <div style={s.statusItem}>🚩 Màn {level}/5</div>
@@ -1285,11 +1319,11 @@
                             </div>
                         </div>
                         
-                        <div style={{ position: 'absolute', bottom: 30, left: 30, display: 'flex', gap: 20, zIndex: 10 }}>
+                        <div style={s.gameControls} className="game-controls">
                             <div style={s.ctrlBtn} onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)}>←</div>
                             <div style={s.ctrlBtn} onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)}>→</div>
                         </div>
-                        <div style={{ position: 'absolute', bottom: 30, right: 30, zIndex: 10 }}>
+                        <div style={s.gameJumpBtn} className="game-controls">
                             <div style={{ ...s.ctrlBtn, background: 'rgba(255,99,71,0.4)' }} onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)}>↑</div>
                         </div>
                         </React.Fragment>
@@ -1300,7 +1334,7 @@
                             <div style={{position: 'absolute', top:0, left:0, width:'100%', height:'100%', zIndex:-1}}>
                                 <canvas ref={titleRef} width={1600} height={900} style={{width:'100%', height:'100%', objectFit:'cover'}} />
                             </div>
-                            <h1 style={{ fontFamily: "'Calibri', sans-serif", fontSize: '5rem', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
+                            <h1 style={{ fontFamily: "'Calibri', sans-serif", fontSize: 'clamp(3rem, 8vw, 5rem)', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
                             <div style={{ background: 'rgba(0,0,0,0.6)', padding: '30px', borderRadius: '15px', backdropFilter: 'blur(10px)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
                                 <input 
                                     type="text" 
@@ -1318,7 +1352,7 @@
 
                     {gameState === 'INSTRUCTIONS' && (
                         <div style={s.overlay}>
-                            <div style={{ background: 'rgba(0,0,0,0.9)', padding: '40px', borderRadius: '20px', maxWidth: '800px', border: '2px solid #FFD700', textAlign: 'center', animation: 'fadeIn 0.5s', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ background: 'rgba(0,0,0,0.9)', padding: '40px', borderRadius: '20px', maxWidth: '800px', width: '90%', border: '2px solid #FFD700', textAlign: 'center', animation: 'fadeIn 0.5s', maxHeight: '90vh', overflowY: 'auto' }}>
                                 <h2 style={{color: '#FFD700', fontSize: '2.5rem', marginBottom: '20px'}}>CỐT TRUYỆN & HƯỚNG DẪN</h2>
                                 
                                 <div style={{textAlign: 'left', marginBottom: '30px', background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '10px'}}>
@@ -1350,17 +1384,17 @@
 
                     {gameState === 'TRANSITION' && (
                         <div style={s.overlay}>
-                            <h1 style={{ fontSize: '3rem', color: '#FFD700', ...s.textShadow }}>{STORY_TEXTS[level-1].title}</h1>
-                            <p style={{ fontSize: '1.5rem', maxWidth: '600px', textAlign: 'center', lineHeight: '1.6', background: 'rgba(0,0,0,0.5)', padding: '20px', borderRadius: '10px' }}>{STORY_TEXTS[level-1].text}</p>
+                            <h1 style={{ fontSize: '3rem', color: '#FFD700', ...s.textShadow, textAlign: 'center' }}>{STORY_TEXTS[level-1].title}</h1>
+                            <p style={{ fontSize: '1.5rem', maxWidth: '600px', textAlign: 'center', lineHeight: '1.6', background: 'rgba(0,0,0,0.5)', padding: '20px', borderRadius: '10px', margin: '20px' }}>{STORY_TEXTS[level-1].text}</p>
                             <button style={s.btn} onClick={startLevel}>TIẾP TỤC</button>
                         </div>
                     )}
 
                     {gameState === 'QUESTION' && (
                         <div style={s.overlay}>
-                            <div style={{ background: 'rgba(0,0,0,0.95)', padding: '40px', borderRadius: '20px', width: '80%', maxWidth: '900px', border: '2px solid #FFD700', boxShadow: '0 0 30px rgba(255, 215, 0, 0.2)' }}>
+                            <div style={{ background: 'rgba(0,0,0,0.95)', padding: '40px', borderRadius: '20px', width: '90%', maxWidth: '900px', border: '2px solid #FFD700', boxShadow: '0 0 30px rgba(255, 215, 0, 0.2)', maxHeight: '90vh', overflowY: 'auto' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px' }}>
-                                    <h2 style={{ color: '#FFD700', margin: 0 }}>Thử Thách Hóa Học</h2>
+                                    <h2 style={{ color: '#FFD700', margin: 0, fontSize: 'clamp(1.2rem, 3vw, 2rem)' }}>Thử Thách Hóa Học</h2>
                                     <span style={{ color: '#AAA' }}>Câu {questionsAnsweredInLevel + 1}/2</span>
                                 </div>
                                 <p style={{ fontSize: '1.5rem', lineHeight: '1.5', margin: '30px 0', fontWeight: 'bold' }}>{QUESTIONS[currentQIndex].text}</p>
