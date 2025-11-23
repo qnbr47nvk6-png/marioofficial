@@ -2,2617 +2,1410 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Mario Hóa Học - Game Giáo Dục</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mario Dũng Sĩ Hóa Học</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Font -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            touch-action: none;
-        }
-        
-        #game-container {
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            overflow: hidden;
-            position: relative;
-        }
-        
-        #game-header {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(to right, #8B4513, #A0522D);
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #FFD700;
-            z-index: 30;
-        }
-        
-        #game-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        #game-stats {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .stat {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        
-        #game-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        
-        #game-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-        }
-        
-        #ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        
-        #login-screen, #start-screen, #end-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 20;
-            padding: 20px;
-            text-align: center;
-            pointer-events: auto;
-        }
-        
-        #start-screen, #end-screen {
-            display: none;
-        }
-        
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: #FFD700;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        h2 {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            color: #FF6347;
-        }
-        
-        p {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            text-align: center;
-            max-width: 90%;
-            line-height: 1.5;
-        }
-        
-        button {
-            padding: 15px 30px;
-            font-size: 1.3rem;
-            background: linear-gradient(to bottom, #FF6347, #FF4500);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-            margin: 10px;
-            pointer-events: auto;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        
-        button:hover {
-            background: linear-gradient(to bottom, #FF4500, #DC143C);
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-        }
-        
-        #question-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            color: white;
-            z-index: 20;
-            padding: 20px;
-            overflow-y: auto;
-            pointer-events: auto;
-        }
-        
-        #question-header {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        #question-text {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-            line-height: 1.5;
-            max-height: 40%;
-            overflow-y: auto;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            border-left: 4px solid #FFD700;
-        }
-        
-        #answers-container {
-            width: 100%;
-            max-width: 800px;
-            max-height: 45%;
-            overflow-y: auto;
-            margin-bottom: 20px;
-        }
-        
-        .answer-option {
-            width: 100%;
-            padding: 15px;
-            margin: 8px 0;
-            background: #333;
-            border: 2px solid #555;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            pointer-events: auto;
-            text-align: left;
-        }
-        
-        .answer-option:hover {
-            background: #444;
-            border-color: #FF6347;
-            transform: translateX(5px);
-        }
-        
-        .selected {
-            background: #555;
-            border-color: #FFD700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-        
-        #submit-answer {
-            margin-top: 15px;
-            position: sticky;
-            bottom: 15px;
-            z-index: 5;
-        }
-        
-        #result-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 25;
-            padding: 20px;
-            text-align: center;
-            pointer-events: auto;
-        }
-        
-        #result-text {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #FFD700;
-        }
-        
-        #controls {
-            position: absolute;
-            bottom: 30px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 30px;
-            z-index: 15;
-            pointer-events: none;
-        }
-        
-        .control-btn {
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.2rem;
-            font-weight: bold;
-            color: #333;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            border: 3px solid rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        #left-btn {
-            margin-right: 10px;
-        }
-        
-        #jump-btn {
-            background: rgba(255, 99, 71, 0.9);
-            color: white;
-        }
-        
-        #level-indicator {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 15;
-            border: 2px solid #FFD700;
-        }
-        
-        #score-indicator {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 15;
-            border: 2px solid #FFD700;
-        }
-        
-        #player-name-indicator {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 15;
-            border: 2px solid #FFD700;
-        }
-        
-        #audio-toggle {
-            position: absolute;
-            top: 140px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 15;
-            cursor: pointer;
-            pointer-events: auto;
-            border: 2px solid #FFD700;
-        }
-        
-        .input-field {
-            width: 90%;
-            max-width: 500px;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 1.3rem;
-            border: 2px solid #555;
-            border-radius: 10px;
-            background: #333;
-            color: white;
-            text-align: center;
-        }
-        
-        .input-field:focus {
-            outline: none;
-            border-color: #FF6347;
-            box-shadow: 0 0 10px rgba(255, 99, 71, 0.5);
-        }
-        
-        /* ĐÃ XÓA #camera-indicator */
-        
-        #princess-container {
-            margin: 20px 0;
-        }
-        
-        #princess-container canvas {
-            width: 150px;
-            height: 180px;
-        }
-        
-        /* Orientation warning */
-        #orientation-warning {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            z-index: 100;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        /* Fullscreen button */
-        #fullscreen-toggle {
-            position: absolute;
-            top: 140px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.2rem;
-            z-index: 15;
-            cursor: pointer;
-            pointer-events: auto;
-            border: 2px solid #FFD700;
-        }
-        
-        /* Weather indicator */
-        #weather-indicator {
-            position: absolute;
-            top: 140px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 1.1rem;
-            z-index: 15;
-            border: 2px solid #FFD700;
-        }
-        
-        /* Mobile landscape optimizations */
-        @media (max-width: 1024px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            h2 {
-                font-size: 1.8rem;
-            }
-            
-            p {
-                font-size: 1.1rem;
-            }
-            
-            button {
-                padding: 12px 25px;
-                font-size: 1.1rem;
-            }
-            
-            .control-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 1.8rem;
-            }
-            
-            #game-title {
-                font-size: 1.2rem;
-            }
-            
-            .stat {
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 768px) and (orientation: landscape) {
-            #game-container {
-                width: 100%;
-                height: 100vh;
-            }
-            
-            #game-wrapper {
-                height: 100%;
-            }
-            
-            #login-screen, #start-screen, #end-screen, #question-screen, #result-screen {
-                padding: 10px;
-                justify-content: flex-start;
-                padding-top: 20px;
-                overflow-y: auto;
-            }
-            
-            #login-screen h1, #start-screen h1, #end-screen h1 {
-                font-size: 1.8rem;
-                margin-bottom: 10px;
-            }
-            
-            #login-screen p, #start-screen p, #end-screen p {
-                font-size: 0.9rem;
-                margin-bottom: 8px;
-            }
-            
-            #login-screen button, #start-screen button, #end-screen button {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-                margin-top: 10px;
-            }
-            
-            #question-screen {
-                padding: 10px;
-            }
-            
-            #question-text {
-                font-size: 0.9rem;
-                max-height: 30%;
-            }
-            
-            #answers-container {
-                max-height: 40%;
-            }
-            
-            .answer-option {
-                font-size: 0.8rem;
-                padding: 10px;
-            }
-            
-            #controls {
-                bottom: 10px;
-                padding: 0 10px;
-            }
-            
-            .control-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.2rem;
-            }
-            
-            #game-header {
-                padding: 5px 10px;
-            }
-            
-            #game-title {
-                font-size: 1rem;
-            }
-            
-            .stat {
-                font-size: 0.7rem;
-                padding: 3px 8px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            #game-container {
-                width: 100%;
-                height: 100vh;
-            }
-            
-            #game-wrapper {
-                height: 100%;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            h2 {
-                font-size: 1.4rem;
-            }
-            
-            p {
-                font-size: 0.9rem;
-            }
-            
-            button {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-            
-            .control-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-            
-            #game-header {
-                padding: 8px 15px;
-            }
-            
-            #game-title {
-                font-size: 1.2rem;
-            }
-            
-            .stat {
-                font-size: 0.8rem;
-            }
-        }
-        
-        /* Animation for correct/incorrect answers */
-        @keyframes correctAnswer {
-            0% { background-color: #333; }
-            50% { background-color: #4CAF50; }
-            100% { background-color: #333; }
-        }
-        
-        @keyframes incorrectAnswer {
-            0% { background-color: #333; }
-            50% { background-color: #F44336; }
-            100% { background-color: #333; }
-        }
-        
-        .correct {
-            animation: correctAnswer 1s;
-        }
-        
-        .incorrect {
-            animation: incorrectAnswer 1s;
-        }
-        
-        /* Game instructions */
-        #instructions {
-            position: absolute;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 1rem;
-            z-index: 15;
-            text-align: center;
-            max-width: 80%;
-            border: 2px solid #FFD700;
-            display: none;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap');
+        body { margin: 0; padding: 0; background-color: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+        #root { width: 100vw; height: 100vh; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
+<script type="importmap">
+{
+  "imports": {
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
+  }
+}
+</script>
 </head>
 <body>
-    <div id="orientation-warning">
-        <h1>Vui lòng xoay ngang điện thoại</h1>
-        <p>Trò chơi hoạt động tốt nhất ở chế độ ngang</p>
-    </div>
-    
-    <div id="game-container">
-        <div id="game-header">
-            <div id="game-title">Mario Hóa Học - Game Giáo Dục</div>
-            <div id="game-stats">
-                <div class="stat" id="header-level">Cấp độ: 1/5</div>
-                <div class="stat" id="header-score">Điểm: 0</div>
-            </div>
-        </div>
-        
-        <div id="game-wrapper">
-            <canvas id="game-canvas"></canvas>
-            
-            <div id="ui-overlay">
-                <div id="level-indicator">Cấp độ: 1/5</div>
-                <div id="score-indicator">Điểm: 0</div>
-                <div id="player-name-indicator">Người chơi: </div>
-                <div id="audio-toggle">🔊</div>
-                <div id="fullscreen-toggle">⛶</div>
-                <div id="weather-indicator">☀️ Bình minh</div>
-                <!-- ĐÃ XÓA #camera-indicator -->
-                
-                <div id="instructions">
-                    <p>Điều khiển: ← → để di chuyển, SPACE để nhảy</p>
-                    <p>Nhặt đồng xu vàng để tăng điểm!</p>
-                </div>
-                
-                <div id="login-screen">
-                    <h1>Mario Hóa Học</h1>
-                    <p>Nhập tên nhân vật của bạn:</p>
-                    <input type="text" id="player-name" class="input-field" placeholder="Tên nhân vật" maxlength="15">
-                    <button id="login-btn">Bắt Đầu</button>
-                    <p class="game-description">Giúp Mario vượt qua các thử thách hóa học để giải cứu Công Chúa!</p>
-                </div>
-                
-                <div id="start-screen">
-                    <h1>Mario Hóa Học</h1>
-                    <p>Chào mừng <span id="welcome-name">Người chơi</span>!</p>
-                    <p>Điều khiển: ← → để di chuyển, SPACE để nhảy</p>
-                    <p>Nhặt đồng xu vàng để tăng điểm số!</p>
-                    <p>Nhảy lên đầu quái vật để tiêu diệt chúng!</p>
-                    <button id="start-btn">Bắt Đầu Chơi</button>
-                </div>
-                
-                <div id="question-screen">
-                    <div id="question-header">
-                        <h2 id="question-number">Câu hỏi 1</h2>
-                    </div>
-                    <p id="question-text">Nội dung câu hỏi sẽ hiển thị ở đây</p>
-                    <div id="answers-container">
-                        <!-- Các đáp án sẽ được thêm vào đây bằng JavaScript -->
-                    </div>
-                    <button id="submit-answer">Trả Lời</button>
-                </div>
-                
-                <div id="result-screen">
-                    <h2 id="result-text">Kết quả</h2>
-                    <p id="result-message">Thông báo kết quả</p>
-                    <button id="result-btn">Tiếp Tục</button>
-                </div>
-                
-                <div id="end-screen">
-                    <h1>CHÚC MỪNG!</h1>
-                    <p><span id="congrats-name">Người chơi</span> đã giải cứu được Công Chúa!</p>
-                    <p id="final-score">Tổng điểm: 0</p>
-                    <div id="princess-container">
-                        <!-- Công chúa sẽ được vẽ ở đây -->
-                    </div>
-                    <button id="restart-btn">Chơi Lại</button>
-                </div>
-                
-                <div id="controls">
-                    <div style="display: flex;">
-                        <div class="control-btn" id="left-btn">←</div>
-                        <div class="control-btn" id="right-btn">→</div>
-                    </div>
-                    <div class="control-btn" id="jump-btn">↑</div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="root"></div>
 
-    <script>
-        // Lấy các phần tử DOM
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        const gameWrapper = document.getElementById('game-wrapper');
-        const loginScreen = document.getElementById('login-screen');
-        const startScreen = document.getElementById('start-screen');
-        const endScreen = document.getElementById('end-screen');
-        const questionScreen = document.getElementById('question-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const orientationWarning = document.getElementById('orientation-warning');
-        const weatherIndicator = document.getElementById('weather-indicator');
-        const fullscreenToggle = document.getElementById('fullscreen-toggle');
-        const loginBtn = document.getElementById('login-btn');
-        const startBtn = document.getElementById('start-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const submitBtn = document.getElementById('submit-answer');
-        const resultBtn = document.getElementById('result-btn');
-        const playerNameInput = document.getElementById('player-name');
-        const welcomeName = document.getElementById('welcome-name');
-        const congratsName = document.getElementById('congrats-name');
-        const playerNameIndicator = document.getElementById('player-name-indicator');
-        const questionText = document.getElementById('question-text');
-        const questionNumber = document.getElementById('question-number');
-        const answersContainer = document.getElementById('answers-container');
-        const resultText = document.getElementById('result-text');
-        const resultMessage = document.getElementById('result-message');
-        const levelIndicator = document.getElementById('level-indicator');
-        const scoreIndicator = document.getElementById('score-indicator');
-        const finalScore = document.getElementById('final-score');
-        const audioToggle = document.getElementById('audio-toggle');
-        const leftBtn = document.getElementById('left-btn');
-        const rightBtn = document.getElementById('right-btn');
-        const jumpBtn = document.getElementById('jump-btn');
-        const princessContainer = document.getElementById('princess-container');
-        const headerLevel = document.getElementById('header-level');
-        const headerScore = document.getElementById('header-score');
-        const instructions = document.getElementById('instructions');
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+        const { createRoot } = ReactDOM;
 
-        // Kích thước game world cố định (tỷ lệ 16:9)
+        // --- CONFIGURATION ---
         const GAME_WIDTH = 1600;
         const GAME_HEIGHT = 900;
-        
-        // Kích thước viewport (màn hình hiển thị)
-        let viewport = {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0
+
+        // Physics tuned for responsiveness (Zero Delay)
+        const GRAVITY = 0.7; 
+        const JUMP_POWER = 18; 
+        const SPEED = 1.2; 
+        const MAX_SPEED = 12; 
+        const FRICTION = 0.82; 
+
+        // --- HELPER FUNCTIONS ---
+        const darkenColor = (color, percent) => {
+            const num = parseInt(color.replace("#", ""), 16),
+                amt = Math.round(2.55 * percent * 100),
+                R = (num >> 16) - amt,
+                G = (num >> 8 & 0x00FF) - amt,
+                B = (num & 0x0000FF) - amt;
+            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         };
 
-        // Biến scale
-        let gameScale = 1;
-        let offsetX = 0;
-        let offsetY = 0;
+        // --- ASSETS & PRERENDERING ---
+        const assetCache = {};
 
-        // Biến trò chơi
-        let gameRunning = false;
-        let currentLevel = 1;
-        let player;
-        let platforms = [];
-        let obstacles = [];
-        let enemies = [];
-        let coins = [];
-        let goal;
-        let keys = {};
-        let selectedAnswer = null;
-        let currentQuestion = 0;
-        let score = 0;
-        let soundEnabled = true;
-        let playerName = "Người chơi";
-        let touchControls = {
-            left: false,
-            right: false,
-            jump: false
-        };
-        let isFullscreen = false;
-
-        // Biến môi trường
-        let environment = {
-            // Thời tiết và khung cảnh
-            weather: 'sunny',
-            timeOfDay: 'morning',
-            
-            // Các yếu tố môi trường
-            clouds: [],
-            birds: [],
-            trees: [],
-            bushes: [],
-            rainDrops: [],
-            stars: [],
-            
-            // Màu sắc nền theo thời tiết
-            skyColors: {
-                sunny: ['#87CEEB', '#1E90FF'],
-                rainy: ['#4A6572', '#344955'],
-                night: ['#0F1B2D', '#1A365D']
-            },
-            
-            // Mặt trời/mặt trăng
-            sun: { x: 200, y: 150, radius: 60 },
-            moon: { x: 1400, y: 120, radius: 50 },
-            
-            // Hiệu ứng
-            lightningTimer: 0,
-            lightningActive: false
+        const createOffscreenCanvas = (width, height, drawFn) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) drawFn(ctx);
+            return canvas;
         };
 
-        // Khởi tạo kích thước canvas và scale
-        function initCanvasSize() {
-            const containerWidth = gameWrapper.clientWidth;
-            const containerHeight = gameWrapper.clientHeight;
-            
-            // Tính tỷ lệ scale để fit toàn màn hình
-            const scaleX = containerWidth / GAME_WIDTH;
-            const scaleY = containerHeight / GAME_HEIGHT;
-            gameScale = Math.min(scaleX, scaleY);
-            
-            // Tính kích thước thực tế của game trên màn hình
-            const gameDisplayWidth = GAME_WIDTH * gameScale;
-            const gameDisplayHeight = GAME_HEIGHT * gameScale;
-            
-            // Căn giữa game
-            offsetX = (containerWidth - gameDisplayWidth) / 2;
-            offsetY = (containerHeight - gameDisplayHeight) / 2;
-            
-            // Đặt kích thước canvas bằng kích thước màn hình
-            canvas.width = containerWidth;
-            canvas.height = containerHeight;
-            
-            // Cập nhật viewport
-            viewport.width = GAME_WIDTH;
-            viewport.height = GAME_HEIGHT;
-        }
+        const initAssets = () => {
+            // 1. PLATFORM
+            if (!assetCache['brick']) {
+                assetCache['brick'] = createOffscreenCanvas(100, 100, (ctx) => {
+                    const grad = ctx.createLinearGradient(0, 0, 0, 100);
+                    grad.addColorStop(0, '#795548'); grad.addColorStop(1, '#3E2723');
+                    ctx.fillStyle = grad; ctx.fillRect(0, 0, 100, 100);
+                    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                    ctx.beginPath(); ctx.arc(20, 40, 5, 0, Math.PI*2); ctx.arc(70, 70, 8, 0, Math.PI*2); ctx.arc(40, 80, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#4CAF50'; ctx.fillRect(0, 0, 100, 15);
+                    ctx.fillStyle = '#81C784'; ctx.fillRect(0, 0, 100, 5);
+                    ctx.fillStyle = '#2E7D32'; ctx.beginPath();
+                    for(let i=0; i<20; i++) { ctx.moveTo(i*5, 15); ctx.lineTo(i*5+2.5, 25); ctx.lineTo(i*5+5, 15); }
+                    ctx.fill();
+                });
+            }
 
-        // Thiết lập môi trường theo cấp độ
-        function setupEnvironment() {
-            // Reset môi trường
-            environment.clouds = [];
-            environment.birds = [];
-            environment.trees = [];
-            environment.bushes = [];
-            environment.rainDrops = [];
-            environment.stars = [];
-            environment.lightningTimer = 0;
-            environment.lightningActive = false;
-
-            // Thiết lập theo cấp độ
-            switch(currentLevel) {
-                case 1: // Bình minh tươi sáng
-                    environment.weather = 'sunny';
-                    environment.timeOfDay = 'morning';
-                    weatherIndicator.textContent = '☀️ Bình minh';
-                    createSunnyEnvironment();
-                    break;
-                case 2: // Trời mưa
-                    environment.weather = 'rainy';
-                    environment.timeOfDay = 'afternoon';
-                    weatherIndicator.textContent = '🌧️ Mưa rào';
-                    createRainyEnvironment();
-                    break;
-                case 3: // Hoàng hôn
-                    environment.weather = 'sunny';
-                    environment.timeOfDay = 'evening';
-                    weatherIndicator.textContent = '🌅 Hoàng hôn';
-                    createSunsetEnvironment();
-                    break;
-                case 4: // Đêm có sao
-                    environment.weather = 'night';
-                    environment.timeOfDay = 'night';
-                    weatherIndicator.textContent = '🌃 Đêm sao';
-                    createNightEnvironment();
-                    break;
-                case 5: // Bão tố
-                    environment.weather = 'rainy';
-                    environment.timeOfDay = 'night';
-                    weatherIndicator.textContent = '⛈️ Bão tố';
-                    createStormEnvironment();
-                    break;
-            }
-        }
-
-        // Tạo môi trường nắng
-        function createSunnyEnvironment() {
-            // Tạo mây
-            for (let i = 0; i < 8; i++) {
-                environment.clouds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 80 + Math.random() * 100,
-                    width: 120 + Math.random() * 80,
-                    height: 60 + Math.random() * 40,
-                    speed: 0.2 + Math.random() * 0.3
-                });
-            }
-            
-            // Tạo chim
-            for (let i = 0; i < 5; i++) {
-                environment.birds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 50 + Math.random() * 100,
-                    speed: 2 + Math.random() * 1,
-                    wingPhase: Math.random() * Math.PI * 2
-                });
-            }
-            
-            // Tạo cây
-            for (let i = 0; i < 6; i++) {
-                environment.trees.push({
-                    x: 100 + i * 250,
-                    y: GAME_HEIGHT - 30,
-                    height: 120 + Math.random() * 60,
-                    type: Math.floor(Math.random() * 3)
-                });
-            }
-            
-            // Tạo bụi cây
-            for (let i = 0; i < 10; i++) {
-                environment.bushes.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: GAME_HEIGHT - 30,
-                    size: 30 + Math.random() * 40
-                });
-            }
-        }
-
-        // Tạo môi trường mưa
-        function createRainyEnvironment() {
-            // Tạo mây đen
-            for (let i = 0; i < 10; i++) {
-                environment.clouds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 60 + Math.random() * 80,
-                    width: 150 + Math.random() * 100,
-                    height: 80 + Math.random() * 60,
-                    speed: 0.4 + Math.random() * 0.4,
-                    dark: true
-                });
-            }
-            
-            // Tạo hạt mưa
-            for (let i = 0; i < 100; i++) {
-                environment.rainDrops.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: Math.random() * GAME_HEIGHT,
-                    length: 10 + Math.random() * 10,
-                    speed: 8 + Math.random() * 4
-                });
-            }
-            
-            // Tạo cây ít hơn
-            for (let i = 0; i < 4; i++) {
-                environment.trees.push({
-                    x: 200 + i * 350,
-                    y: GAME_HEIGHT - 30,
-                    height: 100 + Math.random() * 80,
-                    type: Math.floor(Math.random() * 3)
-                });
-            }
-        }
-
-        // Tạo môi trường hoàng hôn
-        function createSunsetEnvironment() {
-            // Tạo mây
-            for (let i = 0; i < 6; i++) {
-                environment.clouds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 100 + Math.random() * 120,
-                    width: 140 + Math.random() * 100,
-                    height: 70 + Math.random() * 50,
-                    speed: 0.3 + Math.random() * 0.2,
-                    sunset: true
-                });
-            }
-            
-            // Tạo chim bay về tổ
-            for (let i = 0; i < 3; i++) {
-                environment.birds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 80 + Math.random() * 150,
-                    speed: 3 + Math.random() * 1,
-                    wingPhase: Math.random() * Math.PI * 2,
-                    goingRight: Math.random() > 0.5
-                });
-            }
-            
-            // Tạo cây silhouette
-            for (let i = 0; i < 5; i++) {
-                environment.trees.push({
-                    x: 150 + i * 280,
-                    y: GAME_HEIGHT - 30,
-                    height: 140 + Math.random() * 80,
-                    type: Math.floor(Math.random() * 3),
-                    silhouette: true
-                });
-            }
-        }
-
-        // Tạo môi trường đêm
-        function createNightEnvironment() {
-            // Tạo sao
-            for (let i = 0; i < 50; i++) {
-                environment.stars.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: Math.random() * 400,
-                    size: 1 + Math.random() * 2,
-                    brightness: 0.3 + Math.random() * 0.7
-                });
-            }
-            
-            // Tạo mây đêm
-            for (let i = 0; i < 4; i++) {
-                environment.clouds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 120 + Math.random() * 100,
-                    width: 100 + Math.random() * 80,
-                    height: 50 + Math.random() * 40,
-                    speed: 0.2 + Math.random() * 0.2,
-                    night: true
-                });
-            }
-            
-            // Tạo cây đêm
-            for (let i = 0; i < 5; i++) {
-                environment.trees.push({
-                    x: 180 + i * 290,
-                    y: GAME_HEIGHT - 30,
-                    height: 110 + Math.random() * 70,
-                    type: Math.floor(Math.random() * 3),
-                    night: true
-                });
-            }
-        }
-
-        // Tạo môi trường bão
-        function createStormEnvironment() {
-            // Tạo mây bão
-            for (let i = 0; i < 12; i++) {
-                environment.clouds.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: 40 + Math.random() * 60,
-                    width: 180 + Math.random() * 120,
-                    height: 100 + Math.random() * 80,
-                    speed: 0.6 + Math.random() * 0.4,
-                    storm: true
-                });
-            }
-            
-            // Tạo mưa lớn
-            for (let i = 0; i < 150; i++) {
-                environment.rainDrops.push({
-                    x: Math.random() * GAME_WIDTH,
-                    y: Math.random() * GAME_HEIGHT,
-                    length: 15 + Math.random() * 15,
-                    speed: 12 + Math.random() * 6
-                });
-            }
-            
-            // Thiết lập timer cho sấm sét
-            environment.lightningTimer = 180;
-        }
-
-        // Cập nhật môi trường
-        function updateEnvironment() {
-            // Cập nhật mây
-            environment.clouds.forEach(cloud => {
-                cloud.x += cloud.speed;
-                if (cloud.x > GAME_WIDTH + cloud.width) {
-                    cloud.x = -cloud.width;
-                }
+            // 2. CELESTIAL
+            if (!assetCache['sun']) assetCache['sun'] = createOffscreenCanvas(120, 120, ctx => {
+                const grd = ctx.createRadialGradient(60,60,10, 60,60,60);
+                grd.addColorStop(0, '#FFF'); grd.addColorStop(0.2, '#FFEB3B'); grd.addColorStop(1, 'rgba(255, 193, 7, 0)');
+                ctx.fillStyle = grd; ctx.fillRect(0,0,120,120);
             });
-            
-            // Cập nhật chim
-            environment.birds.forEach(bird => {
-                if (bird.goingRight !== undefined) {
-                    bird.x += bird.goingRight ? bird.speed : -bird.speed;
-                    if (bird.x > GAME_WIDTH + 50) bird.x = -50;
-                    if (bird.x < -50) bird.x = GAME_WIDTH + 50;
-                } else {
-                    bird.x += bird.speed;
-                    if (bird.x > GAME_WIDTH + 50) bird.x = -50;
-                }
-                bird.wingPhase += 0.3;
+            if (!assetCache['moon']) assetCache['moon'] = createOffscreenCanvas(100, 100, ctx => {
+                ctx.fillStyle = '#FEFCD7'; ctx.beginPath(); ctx.arc(50,50,40,0,Math.PI*2); ctx.fill();
+                ctx.shadowColor = '#FFF'; ctx.shadowBlur = 15; ctx.fill();
             });
-            
-            // Cập nhật mưa
-            environment.rainDrops.forEach(drop => {
-                drop.y += drop.speed;
-                if (drop.y > GAME_HEIGHT) {
-                    drop.y = -20;
-                    drop.x = Math.random() * GAME_WIDTH;
-                }
-            });
-            
-            // Cập nhật sấm sét
-            if (environment.lightningTimer > 0) {
-                environment.lightningTimer--;
-                if (environment.lightningTimer === 0) {
-                    environment.lightningActive = true;
-                    setTimeout(() => {
-                        environment.lightningActive = false;
-                        environment.lightningTimer = 120 + Math.random() * 180;
-                    }, 100);
-                }
-            }
-        }
 
-        // Vẽ môi trường
-        function drawEnvironment() {
-            ctx.save();
-            ctx.translate(offsetX, offsetY);
-            ctx.scale(gameScale, gameScale);
-            ctx.translate(-viewport.x, -viewport.y);
-            
-            // Vẽ nền trời với gradient
-            const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-            const colors = environment.skyColors[environment.weather];
-            skyGradient.addColorStop(0, colors[0]);
-            skyGradient.addColorStop(1, colors[1]);
-            
-            ctx.fillStyle = skyGradient;
-            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-            
-            // Vẽ mặt trời/mặt trăng
-            if (environment.timeOfDay === 'morning' || environment.timeOfDay === 'evening') {
-                // Mặt trời
-                ctx.fillStyle = environment.timeOfDay === 'morning' ? '#FFD700' : '#FF4500';
-                ctx.beginPath();
-                ctx.arc(environment.sun.x, environment.sun.y, environment.sun.radius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Hiệu ứng ánh sáng mặt trời
-                if (environment.timeOfDay === 'morning') {
-                    const sunGradient = ctx.createRadialGradient(
-                        environment.sun.x, environment.sun.y, environment.sun.radius,
-                        environment.sun.x, environment.sun.y, environment.sun.radius * 3
-                    );
-                    sunGradient.addColorStop(0, 'rgba(255, 215, 0, 0.3)');
-                    sunGradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
-                    ctx.fillStyle = sunGradient;
-                    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-                }
-            }
-            
-            if (environment.timeOfDay === 'night') {
-                // Mặt trăng
-                ctx.fillStyle = '#F0F0F0';
-                ctx.beginPath();
-                ctx.arc(environment.moon.x, environment.moon.y, environment.moon.radius, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Vẽ sao
-                environment.stars.forEach(star => {
-                    ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-                    ctx.fillRect(star.x, star.y, star.size, star.size);
+            // 3. MOUNTAINS
+            if (!assetCache['mountain']) {
+                assetCache['mountain'] = createOffscreenCanvas(400, 300, ctx => {
+                    const grad = ctx.createLinearGradient(0, 0, 0, 300);
+                    grad.addColorStop(0, '#757575'); grad.addColorStop(1, '#424242');
+                    ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0, 300); ctx.lineTo(200, 50); ctx.lineTo(400, 300); ctx.fill();
+                    ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.moveTo(150, 112); ctx.lineTo(200, 50); ctx.lineTo(250, 112); ctx.lineTo(225, 90); ctx.lineTo(200, 110); ctx.lineTo(175, 90); ctx.fill();
                 });
             }
             
-            // Vẽ mây
-            environment.clouds.forEach(cloud => {
-                if (cloud.dark) {
-                    ctx.fillStyle = '#2C3E50';
-                } else if (cloud.sunset) {
-                    ctx.fillStyle = '#E67E22';
-                } else if (cloud.night) {
-                    ctx.fillStyle = '#34495E';
-                } else if (cloud.storm) {
-                    ctx.fillStyle = '#2C3E50';
-                } else {
-                    ctx.fillStyle = '#FFFFFF';
-                }
-                
-                ctx.beginPath();
-                ctx.ellipse(cloud.x, cloud.y, cloud.width/2, cloud.height/2, 0, 0, Math.PI * 2);
-                ctx.ellipse(cloud.x - cloud.width/4, cloud.y, cloud.width/3, cloud.height/1.5, 0, 0, Math.PI * 2);
-                ctx.ellipse(cloud.x + cloud.width/4, cloud.y, cloud.width/3, cloud.height/1.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            
-            // Vẽ chim
-            environment.birds.forEach(bird => {
-                ctx.fillStyle = '#333333';
-                ctx.save();
-                ctx.translate(bird.x, bird.y);
-                
-                // Thân chim
-                ctx.beginPath();
-                ctx.ellipse(0, 0, 8, 5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Cánh chim
-                ctx.beginPath();
-                ctx.ellipse(-3, Math.sin(bird.wingPhase) * 3, 6, 4, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.restore();
-            });
-            
-            // Vẽ cây
-            environment.trees.forEach(tree => {
-                if (tree.silhouette) {
-                    ctx.fillStyle = '#2C3E50';
-                } else if (tree.night) {
-                    ctx.fillStyle = '#34495E';
-                } else {
-                    ctx.fillStyle = '#228B22';
-                }
-                
-                // Thân cây
-                ctx.fillRect(tree.x - 8, tree.y - tree.height, 16, tree.height - 20);
-                
-                // Tán cây
-                ctx.beginPath();
-                if (tree.type === 0) {
-                    // Cây tròn
-                    ctx.arc(tree.x, tree.y - tree.height + 10, 40, 0, Math.PI * 2);
-                } else if (tree.type === 1) {
-                    // Cây tam giác
-                    ctx.moveTo(tree.x - 45, tree.y - tree.height + 50);
-                    ctx.lineTo(tree.x, tree.y - tree.height - 10);
-                    ctx.lineTo(tree.x + 45, tree.y - tree.height + 50);
-                } else {
-                    // Cây rậm rạp
-                    ctx.ellipse(tree.x - 20, tree.y - tree.height + 30, 35, 25, 0, 0, Math.PI * 2);
-                    ctx.ellipse(tree.x + 20, tree.y - tree.height + 30, 35, 25, 0, 0, Math.PI * 2);
-                    ctx.ellipse(tree.x, tree.y - tree.height, 40, 30, 0, 0, Math.PI * 2);
-                }
-                ctx.fill();
-            });
-            
-            // Vẽ bụi cây
-            environment.bushes.forEach(bush => {
-                ctx.fillStyle = '#27AE60';
-                ctx.beginPath();
-                ctx.arc(bush.x, bush.y - 10, bush.size/2, 0, Math.PI * 2);
-                ctx.arc(bush.x - bush.size/3, bush.y - 15, bush.size/3, 0, Math.PI * 2);
-                ctx.arc(bush.x + bush.size/3, bush.y - 15, bush.size/3, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            
-            // Vẽ mưa
-            environment.rainDrops.forEach(drop => {
-                ctx.strokeStyle = environment.weather === 'rainy' ? '#3498DB' : '#BDC3C7';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(drop.x, drop.y);
-                ctx.lineTo(drop.x - 3, drop.y + drop.length);
-                ctx.stroke();
-            });
-            
-            // Hiệu ứng sấm sét
-            if (environment.lightningActive) {
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            // 4. CASTLE
+            if (!assetCache['castle']) {
+                assetCache['castle'] = createOffscreenCanvas(300, 400, ctx => {
+                    // Main Tower
+                    ctx.fillStyle = '#9E9E9E'; ctx.fillRect(100, 100, 100, 300);
+                    // Side Towers
+                    ctx.fillRect(20, 200, 60, 200); ctx.fillRect(220, 200, 60, 200);
+                    // Roofs
+                    ctx.fillStyle = '#3F51B5';
+                    ctx.beginPath(); ctx.moveTo(100, 100); ctx.lineTo(150, 20); ctx.lineTo(200, 100); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(20, 200); ctx.lineTo(50, 150); ctx.lineTo(80, 200); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(220, 200); ctx.lineTo(250, 150); ctx.lineTo(280, 200); ctx.fill();
+                    // Door
+                    ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.arc(150, 400, 40, Math.PI, 0); ctx.fill();
+                    // Windows
+                    ctx.fillStyle = '#424242'; ctx.fillRect(130, 150, 40, 60); ctx.fillRect(40, 250, 20, 40); ctx.fillRect(240, 250, 20, 40);
+                });
             }
-            
-            ctx.restore();
-        }
 
-        // Cập nhật camera theo vị trí người chơi - ĐÃ XÓA HIỂN THỊ CAMERA INDICATOR
-        function updateCamera() {
-            if (!player) return;
-            
-            // Trên màn hình lớn, camera cố định để hiển thị toàn bộ game world
-            if (window.innerWidth >= GAME_WIDTH && window.innerHeight >= GAME_HEIGHT) {
-                viewport.x = 0;
-                viewport.y = 0;
-                return;
+            // 5. DRAGON (BIGGER & SCARIER)
+            if (!assetCache['dragon']) {
+                assetCache['dragon'] = createOffscreenCanvas(400, 300, ctx => {
+                    ctx.scale(2, 2); // Make it big
+                    // Body
+                    const bodyGrad = ctx.createLinearGradient(0, 0, 0, 100);
+                    bodyGrad.addColorStop(0, '#1B5E20'); bodyGrad.addColorStop(1, '#000');
+                    ctx.fillStyle = bodyGrad;
+                    ctx.beginPath(); ctx.ellipse(100, 80, 60, 35, 0, 0, Math.PI*2); ctx.fill();
+                    // Tail
+                    ctx.beginPath(); ctx.moveTo(40, 80); ctx.quadraticCurveTo(-20, 80, 10, 130); ctx.lineTo(30, 90); ctx.fill();
+                    // Spikes
+                    ctx.fillStyle = '#000';
+                    for(let i=0; i<5; i++) { ctx.beginPath(); ctx.moveTo(50 + i*20, 50); ctx.lineTo(60 + i*20, 30); ctx.lineTo(70+i*20, 55); ctx.fill(); }
+                    // Neck & Head
+                    ctx.fillStyle = '#2E7D32';
+                    ctx.beginPath(); ctx.moveTo(150, 70); ctx.quadraticCurveTo(190, 40, 200, 50); ctx.lineTo(170, 90); ctx.fill();
+                    // Wing (Big)
+                    ctx.fillStyle = '#B71C1C';
+                    ctx.beginPath(); ctx.moveTo(110, 60); ctx.lineTo(190, -10); ctx.lineTo(150, 80); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(90, 60); ctx.lineTo(40, -10); ctx.lineTo(60, 80); ctx.fill();
+                    // Eye (Glowing)
+                    ctx.fillStyle = '#FF0000'; ctx.beginPath(); ctx.arc(185, 55, 4, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#FFFF00'; ctx.beginPath(); ctx.arc(185, 55, 1.5, 0, Math.PI*2); ctx.fill();
+                    // Fire breath prep smoke
+                    ctx.fillStyle = 'rgba(50,50,50,0.5)'; ctx.beginPath(); ctx.arc(205, 60, 5, 0, Math.PI*2); ctx.fill();
+                });
             }
-            
-            // Trên màn hình nhỏ, camera theo dõi người chơi
-            viewport.x = player.x - viewport.width / 2;
-            viewport.y = player.y - viewport.height / 2;
-            
-            // Giới hạn camera trong game world
-            viewport.x = Math.max(0, Math.min(viewport.x, GAME_WIDTH - viewport.width));
-            viewport.y = Math.max(0, Math.min(viewport.y, GAME_HEIGHT - viewport.height));
-            
-            // ĐÃ XÓA HIỂN THỊ CAMERA INDICATOR
-        }
 
-        // Kiểm tra hướng màn hình
-        function checkOrientation() {
-            const isPortrait = window.innerHeight > window.innerWidth;
-            // Chỉ hiển thị cảnh báo trên mobile
-            const isMobile = window.innerWidth <= 768;
-            
-            if (isPortrait && isMobile) {
-                orientationWarning.style.display = 'flex';
-                // Ẩn tất cả các màn hình khác
-                loginScreen.style.display = 'none';
-                startScreen.style.display = 'none';
-                endScreen.style.display = 'none';
-                questionScreen.style.display = 'none';
-                resultScreen.style.display = 'none';
-            } else {
-                orientationWarning.style.display = 'none';
-                // Hiển thị màn hình đăng nhập nếu chưa có
-                if (!gameRunning && loginScreen.style.display !== 'flex' && 
-                    startScreen.style.display !== 'flex' && 
-                    endScreen.style.display !== 'flex') {
-                    loginScreen.style.display = 'flex';
-                }
+            // 5b. TITLE ART (Mario vs Dragon) - IMPROVED
+            if (!assetCache['title_art']) {
+                assetCache['title_art'] = createOffscreenCanvas(1600, 900, ctx => {
+                    // 1. Background (Dramatic Sky)
+                    const sky = ctx.createLinearGradient(0, 0, 0, 900);
+                    sky.addColorStop(0, '#1a237e'); // Deep Blue
+                    sky.addColorStop(0.5, '#b71c1c'); // Red
+                    sky.addColorStop(1, '#ff5722'); // Orange
+                    ctx.fillStyle = sky;
+                    ctx.fillRect(0, 0, 1600, 900);
+
+                    // 2. Mountains/Terrain
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 900);
+                    ctx.lineTo(400, 600);
+                    ctx.lineTo(800, 800);
+                    ctx.lineTo(1200, 600);
+                    ctx.lineTo(1600, 900);
+                    ctx.fill();
+
+                    // 3. The Dragon (Right Side, Big)
+                    ctx.save();
+                    ctx.translate(1100, 300);
+                    ctx.scale(3, 3);
+                    
+                    // Dragon Body
+                    const dGrad = ctx.createLinearGradient(0,0,0,100);
+                    dGrad.addColorStop(0, '#2E7D32'); dGrad.addColorStop(1, '#000');
+                    ctx.fillStyle = dGrad;
+                    ctx.beginPath(); 
+                    // Head
+                    ctx.moveTo(0, 0);
+                    ctx.quadraticCurveTo(50, -20, 80, 20); // Snout
+                    ctx.lineTo(60, 50); // Jaw
+                    ctx.quadraticCurveTo(20, 80, 0, 100); // Neck
+                    ctx.lineTo(-20, 50);
+                    ctx.fill();
+                    
+                    // Eye
+                    ctx.fillStyle = '#FFEB3B';
+                    ctx.beginPath(); ctx.arc(30, 15, 5, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#F44336';
+                    ctx.beginPath(); ctx.arc(30, 15, 2, 0, Math.PI*2); ctx.fill();
+
+                    // Fire Breath
+                    const fire = ctx.createLinearGradient(80, 20, 300, 100);
+                    fire.addColorStop(0, 'rgba(255, 235, 59, 0.8)');
+                    fire.addColorStop(0.5, 'rgba(255, 152, 0, 0.6)');
+                    fire.addColorStop(1, 'rgba(244, 67, 54, 0)');
+                    ctx.fillStyle = fire;
+                    ctx.beginPath();
+                    ctx.moveTo(80, 30);
+                    ctx.lineTo(-300, 150); // Aiming at Mario
+                    ctx.lineTo(-300, 50);
+                    ctx.fill();
+                    
+                    ctx.restore();
+
+                    // 4. Mario (Left Side, Small but brave)
+                    ctx.save();
+                    ctx.translate(300, 650);
+                    ctx.scale(2.5, 2.5);
+                    
+                    // Simplified Mario for Title
+                    // Hat
+                    ctx.fillStyle = '#E52521';
+                    ctx.fillRect(0, 0, 30, 10); ctx.fillRect(-5, 10, 40, 5);
+                    // Face
+                    ctx.fillStyle = '#FFE4E1';
+                    ctx.fillRect(0, 15, 25, 15);
+                    // Mustache
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(15, 22, 12, 4);
+                    // Body
+                    ctx.fillStyle = '#3751E0';
+                    ctx.fillRect(-5, 30, 35, 25);
+                    // Arms (Raised holding something?)
+                    ctx.fillStyle = '#E52521';
+                    ctx.fillRect(25, 30, 10, 20); // Right arm
+                    
+                    // Holding Flask
+                    ctx.translate(35, 25);
+                    ctx.rotate(-0.5);
+                    ctx.fillStyle = 'rgba(200, 240, 255, 0.8)';
+                    ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#00E676'; // Chemical color
+                    ctx.beginPath(); ctx.arc(0, 3, 7, 0, Math.PI*2); ctx.fill();
+                    
+                    ctx.restore();
+                });
             }
-        }
 
-        // Fullscreen toggle
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                if (gameWrapper.requestFullscreen) {
-                    gameWrapper.requestFullscreen();
-                } else if (gameWrapper.webkitRequestFullscreen) {
-                    gameWrapper.webkitRequestFullscreen();
-                } else if (gameWrapper.msRequestFullscreen) {
-                    gameWrapper.msRequestFullscreen();
-                }
-                isFullscreen = true;
-                fullscreenToggle.textContent = '⛶';
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-                isFullscreen = false;
-                fullscreenToggle.textContent = '⛶';
+            // 6. CLOUDS
+            const drawCloud = (ctx, color) => {
+                ctx.fillStyle = color; ctx.beginPath(); ctx.arc(60, 60, 40, 0, Math.PI * 2); ctx.arc(100, 50, 50, 0, Math.PI * 2); ctx.arc(140, 60, 40, 0, Math.PI * 2); ctx.fill();
+            };
+            if (!assetCache['cloud_white']) assetCache['cloud_white'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, 'rgba(255,255,255,0.95)'));
+            if (!assetCache['cloud_dark']) assetCache['cloud_dark'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#607D8B'));
+            if (!assetCache['cloud_sunset']) assetCache['cloud_sunset'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#FFCC80'));
+
+            // 7. PRINCESS PEACH
+            if (!assetCache['princess']) {
+                assetCache['princess'] = createOffscreenCanvas(80, 120, ctx => {
+                    // Dress
+                    const dressGrad = ctx.createLinearGradient(0, 40, 0, 110);
+                    dressGrad.addColorStop(0, '#FF69B4'); dressGrad.addColorStop(1, '#C71585');
+                    ctx.fillStyle = dressGrad;
+                    ctx.beginPath(); ctx.moveTo(40, 40); ctx.lineTo(10, 110); ctx.quadraticCurveTo(40, 120, 70, 110); ctx.lineTo(40, 40); ctx.fill();
+                    ctx.fillStyle = '#C71585'; ctx.fillRect(35, 40, 10, 70);
+                    // Glass Slippers
+                    ctx.fillStyle = 'rgba(224, 255, 255, 0.9)'; ctx.fillRect(30, 110, 8, 5); ctx.fillRect(42, 110, 8, 5);
+                    // Torso & Arms
+                    ctx.fillStyle = '#FF69B4'; ctx.fillRect(30, 25, 20, 15);
+                    ctx.fillStyle = '#FFE4E1';
+                    ctx.beginPath(); ctx.ellipse(25, 35, 5, 15, -0.2, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(55, 35, 5, 15, 0.2, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(22, 48, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(58, 48, 4, 0, Math.PI*2); ctx.fill();
+                    // Head
+                    ctx.fillStyle = '#FFE4E1'; ctx.beginPath(); ctx.arc(40, 20, 12, 0, Math.PI*2); ctx.fill();
+                    // Hair
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath(); ctx.arc(40, 18, 14, Math.PI, 0); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(26, 18); ctx.lineTo(20, 50); ctx.lineTo(35, 25); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(54, 18); ctx.lineTo(60, 50); ctx.lineTo(45, 25); ctx.fill();
+                    // Face
+                    ctx.fillStyle = '#000'; ctx.fillRect(35, 18, 2, 2); ctx.fillRect(43, 18, 2, 2);
+                    ctx.fillStyle = '#F00'; ctx.fillRect(38, 24, 4, 1);
+                    // Crown
+                    ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(33, 10); ctx.lineTo(33, 5); ctx.lineTo(37, 8); ctx.lineTo(40, 4); ctx.lineTo(43, 8); ctx.lineTo(47, 5); ctx.lineTo(47, 10); ctx.fill();
+                });
             }
-        }
 
-        // Tạo âm thanh bằng Web Audio API
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function playSound(frequency, duration, type = 'sine') {
-            if (!soundEnabled) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.value = frequency;
-            oscillator.type = type;
-            
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + duration);
-        }
-        
-        // Âm thanh cho các sự kiện
-        function playJumpSound() {
-            playSound(523.25, 0.3, 'square');
-        }
-        
-        function playCoinSound() {
-            playSound(659.25, 0.2, 'triangle');
-        }
-        
-        function playCorrectSound() {
-            playSound(783.99, 0.5, 'sine');
-            playSound(1046.50, 0.5, 'sine');
-        }
-        
-        function playWrongSound() {
-            playSound(220, 0.5, 'sawtooth');
-        }
-        
-        function playWinSound() {
-            playSound(523.25, 0.2, 'sine');
-            playSound(659.25, 0.2, 'sine');
-            playSound(783.99, 0.2, 'sine');
-            playSound(1046.50, 0.5, 'sine');
-        }
-        
-        function playEnemyDefeatSound() {
-            playSound(392, 0.3, 'sawtooth');
-        }
-        
-        function playEnemyHitSound() {
-            playSound(196, 0.5, 'square');
-        }
-        
-        function playThunderSound() {
-            playSound(80, 0.8, 'sawtooth');
-            setTimeout(() => playSound(60, 0.6, 'sawtooth'), 300);
-        }
-        
-        function playBackgroundMusic() {
-            if (!soundEnabled) return;
-            
-            // Tạo âm nhạc nền đơn giản
-            setInterval(() => {
-                playSound(523.25, 0.1, 'sine');
-                setTimeout(() => playSound(659.25, 0.1, 'sine'), 100);
-                setTimeout(() => playSound(783.99, 0.1, 'sine'), 200);
-            }, 2000);
-        }
+            // 8. CRITTERS
+            if (!assetCache['butterfly']) assetCache['butterfly'] = createOffscreenCanvas(20, 20, ctx => { ctx.fillStyle = '#FF69B4'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FF1493'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, -Math.PI/4, 0, Math.PI*2); ctx.fill(); });
+            if (!assetCache['bird']) assetCache['bird'] = createOffscreenCanvas(30, 20, ctx => { ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,10); ctx.quadraticCurveTo(10,0, 15,10); ctx.quadraticCurveTo(20,0, 30,10); ctx.stroke(); });
 
-        // Câu hỏi hóa học
-        const questions = [
-            {
-                text: "Từ một miếng đá vôi và một lọ đựng dd HCl 1M, thí nghiệm được tiến hành trong điều kiện nào sau đây sẽ thu được lượng CO₂ lớn nhất trong một khoảng thời gian xác định?",
-                options: [
-                    "A. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, không đun nóng.",
-                    "B. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, đun nóng.",
-                    "C. Cho miếng đá vôi vào dung dịch HCl 1M, không đun nóng.",
-                    "D. Cho miếng đá vôi vào dung dịch HCl 1M, đun nóng."
-                ],
-                correct: 1
-            },
-            {
-                text: "Cho phản ứng hóa học sau: C (s) + O2 (g) → CO2 (g). Yếu tố nào sau đây không ảnh hưởng đến tốc độ phản ứng trên?",
-                options: [
-                    "A. Nhiệt độ",
-                    "B. Áp suất O2",
-                    "C. Hàm lượng carbon",
-                    "D. Diện tích bề mặt carbon"
-                ],
-                correct: 2
-            },
-            {
-                text: "Dưới đây là một số hiện tượng xảy ra trong đời sống, hãy sắp xếp theo thứ tự tốc độ phản ứng giảm dần: (1) Phản ứng cháy của xăng, dầu. (2) Các thanh thép ở các công trường xây dựng bị oxi hóa bởi các tác nhân trong không khí. (3) Phản ứng lên men rượu từ trái cây. (4) Nướng bánh mì.",
-                options: [
-                    "A. 1 > 4 > 3 > 2",
-                    "B. 1 > 4 > 2 > 3",
-                    "C. 4 > 1 > 2 > 3",
-                    "D. 1 > 3 > 4 > 2"
-                ],
-                correct: 0
-            },
-            {
-                text: "Trong phòng thí nghiệm, có thể điều chế khí oxygen từ muối potassium chlorate (KClO₃). Người ta sử dụng cách nào sau đây nhằm mục đích tăng tốc độ phản ứng?",
-                options: [
-                    "A. Nung potassium chorate ở nhiệt độ cao.",
-                    "B. Nung hỗn hợp potassium chorate và manganese dioxide ở nhiệt độ cao",
-                    "C. Dùng phương pháp dời nước để thu khí oxygen.",
-                    "D. Dùng phương pháp dời không khí để thu được khí oxygen."
-                ],
-                correct: 1
-            },
-            {
-                text: "Cho ba mẫu đá vôi (100% CaCO₃) có cùng khối lượng: mẫu 1 dạng khối, mẫu 2 dạng viên nhỏ, mẫu 3 dạng bột mịn vào ba cốc dựng cùng thể tích dung dịch HCI (dư, cùng nồng độ, ở điều kiện thường). Thời gian để đá vôi tan hết trong ba cốc tương ứng là t₁, t₂, t₃ giây. So sánh nào sau đây đúng?",
-                options: [
-                    "A. t₃ < t₂ < t₁",
-                    "B. t₁ < t₂ < t₃",
-                    "C. t₁ = t₂ = t₃",
-                    "D. t₂ < t₁ < t₃"
-                ],
-                correct: 0
-            }
+            // 9. DECOR
+            if (!assetCache['bush']) assetCache['bush'] = createOffscreenCanvas(80, 50, (ctx) => { ctx.fillStyle = '#2E7D32'; ctx.beginPath(); ctx.arc(20, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(40, 20, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(60, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#E91E63'; ctx.beginPath(); ctx.arc(30,25,3,0,Math.PI*2); ctx.arc(50,35,3,0,Math.PI*2); ctx.fill(); });
+            if (!assetCache['tree']) assetCache['tree'] = createOffscreenCanvas(100, 150, (ctx) => { const trunk = ctx.createLinearGradient(40, 80, 60, 80); trunk.addColorStop(0, '#795548'); trunk.addColorStop(1, '#5D4037'); ctx.fillStyle = trunk; ctx.fillRect(40, 80, 20, 70); ctx.fillStyle = '#388E3C'; ctx.beginPath(); ctx.arc(50, 80, 30, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(70, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(50, 40, 30, 0, Math.PI*2); ctx.fill(); });
+            if (!assetCache['flask']) assetCache['flask'] = createOffscreenCanvas(60, 100, (ctx) => { ctx.fillStyle = 'rgba(173, 216, 230, 0.6)'; ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(40, 0); ctx.lineTo(40, 40); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.lineTo(20, 40); ctx.fill(); ctx.fillStyle = '#FF6347'; ctx.beginPath(); ctx.moveTo(10, 70); ctx.lineTo(50, 70); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.fill(); });
+            if (!assetCache['rock']) assetCache['rock'] = createOffscreenCanvas(50, 40, (ctx) => { ctx.fillStyle = '#9E9E9E'; ctx.beginPath(); ctx.moveTo(10,40); ctx.lineTo(20,10); ctx.lineTo(40,20); ctx.lineTo(50,40); ctx.fill(); });
+            if (!assetCache['flower']) assetCache['flower'] = createOffscreenCanvas(30, 40, (ctx) => { ctx.fillStyle = '#4CAF50'; ctx.fillRect(13, 20, 4, 20); ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.arc(10, 15, 5, 0, Math.PI*2); ctx.arc(20, 15, 5, 0, Math.PI*2); ctx.arc(15, 8, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.arc(15, 15, 4, 0, Math.PI*2); ctx.fill(); });
+
+            // 10. ENEMIES
+            if (!assetCache['enemy_basic']) assetCache['enemy_basic'] = createOffscreenCanvas(40, 40, ctx => { const grad = ctx.createLinearGradient(0,0,40,40); grad.addColorStop(0, '#76FF03'); grad.addColorStop(1, '#64DD17'); ctx.fillStyle = grad; ctx.fillRect(0,0,40,40); ctx.fillStyle = '#FFF'; ctx.fillRect(5,5,10,10); ctx.fillRect(25,5,10,10); ctx.fillStyle = '#000'; ctx.fillRect(8,8,4,4); ctx.fillRect(28,8,4,4); ctx.fillStyle = '#D50000'; ctx.fillRect(10,30,20,5); });
+            if (!assetCache['enemy_spiky']) assetCache['enemy_spiky'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = '#6200EA'; ctx.fillRect(0,10,40,30); for(let i=0; i<40; i+=10) { ctx.beginPath(); ctx.moveTo(i,10); ctx.lineTo(i+5,0); ctx.lineTo(i+10,10); ctx.fill(); } ctx.fillStyle = '#FFF'; ctx.fillRect(5,15,10,10); ctx.fillRect(25,15,10,10); ctx.fillStyle = '#000'; ctx.fillRect(8,18,4,4); ctx.fillRect(28,18,4,4); });
+            if (!assetCache['enemy_fire']) assetCache['enemy_fire'] = createOffscreenCanvas(40, 40, ctx => { const grad = ctx.createLinearGradient(0,0,0,40); grad.addColorStop(0, '#FF3D00'); grad.addColorStop(1, '#BF360C'); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(20,0); ctx.quadraticCurveTo(40,10,40,40); ctx.lineTo(0,40); ctx.quadraticCurveTo(0,10,20,0); ctx.fill(); ctx.fillStyle = '#FFEA00'; ctx.fillRect(8,15,8,8); ctx.fillRect(24,15,8,8); });
+            if (!assetCache['enemy_ghost']) assetCache['enemy_ghost'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(20,20,20,Math.PI,0); ctx.lineTo(40,40); ctx.lineTo(30,35); ctx.lineTo(20,40); ctx.lineTo(10,35); ctx.lineTo(0,40); ctx.fill(); ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(12,15,3,0,Math.PI*2); ctx.arc(28,15,3,0,Math.PI*2); ctx.fill(); });
+            if (!assetCache['enemy_turtle']) assetCache['enemy_turtle'] = createOffscreenCanvas(40, 30, ctx => { ctx.fillStyle = '#43A047'; ctx.fillRect(0,10,10,10); ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.arc(25,15,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle = '#43A047'; ctx.fillRect(15,25,5,5); ctx.fillRect(35,25,5,5); });
+
+            // 11. COIN
+            if (!assetCache['coin']) assetCache['coin'] = createOffscreenCanvas(30, 30, ctx => { const grad = ctx.createRadialGradient(15,15,5, 15,15,15); grad.addColorStop(0, '#FFEB3B'); grad.addColorStop(1, '#FFC107'); ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(15, 15, 14, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#F57F17'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#F57F17'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline='middle'; ctx.fillText('$', 15, 16); });
+        };
+
+        // --- DATA ---
+        const QUESTIONS = [
+            { text: "Từ một miếng đá vôi và một lọ đựng dd HCl 1M, thí nghiệm được tiến hành trong điều kiện nào sau đây sẽ thu được lượng CO₂ lớn nhất trong một khoảng thời gian xác định?", options: ["A. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, không đun nóng.", "B. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, đun nóng.", "C. Cho miếng đá vôi vào dung dịch HCl 1M, không đun nóng.", "D. Cho miếng đá vôi vào dung dịch HCl 1M, đun nóng."], correct: 1 },
+            { text: "Cho phản ứng hóa học sau: C (s) + O2 (g) → CO2 (g). Yếu tố nào sau đây không ảnh hưởng đến tốc độ phản ứng trên?", options: ["A. Nhiệt độ", "B. Áp suất O2", "C. Hàm lượng carbon", "D. Diện tích bề mặt carbon"], correct: 2 },
+            { text: "Dưới đây là một số hiện tượng xảy ra trong đời sống, hãy sắp xếp theo thứ tự tốc độ phản ứng giảm dần: (1) Phản ứng cháy của xăng, dầu. (2) Các thanh thép ở các công trường xây dựng bị oxi hóa bởi các tác nhân trong không khí. (3) Phản ứng lên men rượu từ trái cây. (4) Nướng bánh mì.", options: ["A. 1 > 4 > 3 > 2", "B. 1 > 4 > 2 > 3", "C. 4 > 1 > 2 > 3", "D. 1 > 3 > 4 > 2"], correct: 0 },
+            { text: "Trong phòng thí nghiệm, có thể điều chế khí oxygen từ muối potassium chlorate (KClO₃). Người ta sử dụng cách nào sau đây nhằm mục đích tăng tốc độ phản ứng?", options: ["A. Nung potassium chorate ở nhiệt độ cao.", "B. Nung hỗn hợp potassium chorate và manganese dioxide ở nhiệt độ cao", "C. Dùng phương pháp dời nước để thu khí oxygen.", "D. Dùng phương pháp dời không khí để thu được khí oxygen."], correct: 1 },
+            { text: "Cho ba mẫu đá vôi (100% CaCO₃) có cùng khối lượng: mẫu 1 dạng khối, mẫu 2 dạng viên nhỏ, mẫu 3 dạng bột mịn vào ba cốc dựng cùng thể tích dung dịch HCI (dư, cùng nồng độ, ở điều kiện thường). Thời gian để đá vôi tan hết trong ba cốc tương ứng là t₁, t₂, t₃ giây. So sánh nào sau đây đúng?", options: ["A. t₃ < t₂ < t₁", "B. t₁ < t₂ < t₃", "C. t₁ = t₂ = t₃", "D. t₂ < t₁ < t₃"], correct: 0 },
+            { text: "Sự thay đổi nào dưới đây không làm tăng tốc độ phản ứng xảy ra giữa dây magnesium và dung dịch hydrochloric acid?", options: ["A. Cuộn dải magnesium thành một quả bóng nhỏ.", "B. Nghiền mảnh magnesium thành bột.", "C. Tăng nồng độ của hydrochloric acid.", "D. Tăng nhiệt độ của hydrochloric acid."], correct: 0 },
+            { text: "Một phản ứng hóá học được biểu diễn như sau: Các chất phản ứng - Các sản phẩm. Yếu tố nào sau đây không ảnh hướng đến tốc độ phản ứng?", options: ["A. Chất xúc tác.", "B. Nồng độ các chất phản ứng.", "C. Nồng độ các sản phẩm.", "D. Nhiệt độ."], correct: 2 },
+            { text: "Thực phẩm bị ôi thiu do các phản ứng oxi hóa của oxygen cũng như sự hoạt động của vi khuẩn. Biết rằng nồng độ oxygen trong túi thực phẩm sau khi bơm N₂ hoặc CO₂ chỉ còn khoảng 2 - 5%. Để hạn chế sự ôi thiu, người ta lại bơm N₂ hoặc CO₂ vào túi đựng thực phẩm trước khi đóng gói vì:", options: ["A. Giảm nồng độ oxygen trong túi.", "B. Giảm tốc độ phản ứng oxi hóa của oxygen.", "C. Hạn chế sự ôi thiu thực phẩm.", "D. Tất cả đều đúng."], correct: 3 },
+            { text: "Cách nào sau đây sẽ làm củ khoai tây chín nhanh nhất?", options: ["A. Luộc trong nước sôi.", "B. Hấp cách thủy trong nồi cơm.", "C. Nướng ở 180°C.", "D. Hấp trên nồi hơi."], correct: 2 },
+            { text: "Cho một viên đá vôi nặng 1 gam vào dung dịch HCl 2 M, ở nhiệt độ 25°C. Biến đổi nào sau đây không làm bọt khí thoát ra mạnh hơn?", options: ["A. Tăng thể tích dung dịch HCl lên gấp đôi.", "B. Thay viên đá vôi bằng 1 gam bột đá vôi.", "C. Thay dung dịch HCl 2 M bằng dung dịch HCl 4 M.", "D. Tăng nhiệt độ lên 50°C."], correct: 0 }
         ];
 
-        // Lớp nhân vật Mario
-        class Player {
-            constructor() {
-                this.width = 40;
-                this.height = 60;
-                this.x = 100;
-                this.y = GAME_HEIGHT - this.height - 100;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.jumping = false;
-                this.speed = 5;
-                this.jumpPower = 15;
-                this.gravity = 0.8;
-                this.friction = 0.8;
-                this.direction = 1; // 1: right, -1: left
-                this.invincible = false;
-                this.invincibleTimer = 0;
-            }
+        const STORY_TEXTS = [
+            { title: "Màn 1: Phòng thí nghiệm cơ bản", text: "Mario bắt đầu hành trình trong phòng thí nghiệm cơ bản. Ở đây, anh học về các phản ứng hóa học đơn giản và tốc độ phản ứng." },
+            { title: "Màn 2: Phòng thí nghiệm mưa acid", text: "Mario tiến vào khu vực bị ô nhiễm mưa acid. Anh phải cẩn thận với các cơn mưa độc hại và quái vật biến dị." },
+            { title: "Màn 3: Phòng thí nghiệm hoàng hôn", text: "Trời đã về chiều. Trong ánh hoàng hôn, Mario khám phá về nhiệt độ và chất xúc tác ảnh hưởng đến phản ứng." },
+            { title: "Màn 4: Phòng thí nghiệm đêm", text: "Bóng tối bao trùm. Mario bước vào khu vực bí ẩn về đêm. Hãy cẩn thận với những bóng ma!" },
+            { title: "Màn 5: Bão tố cuối cùng", text: "Cơn bão lớn đang đến! Sấm chớp và mưa lớn cản đường. Đây là thử thách cuối cùng để giải cứu công chúa." }
+        ];
+
+        // --- AUDIO SYSTEM ---
+        const playSound = (type) => {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            const now = ctx.currentTime;
             
-            update() {
-                // Giảm thời gian bất tử nếu có
-                if (this.invincible) {
-                    this.invincibleTimer--;
-                    if (this.invincibleTimer <= 0) {
-                        this.invincible = false;
-                    }
-                }
-                
-                // Áp dụng trọng lực
-                this.velocityY += this.gravity;
-                
-                // Áp dụng ma sát
-                this.velocityX *= this.friction;
-                
-                // Xử lý điều khiển
-                if (keys['ArrowLeft'] || touchControls.left) {
-                    this.velocityX = -this.speed;
-                    this.direction = -1;
-                }
-                if (keys['ArrowRight'] || touchControls.right) {
-                    this.velocityX = this.speed;
-                    this.direction = 1;
-                }
-                if ((keys[' '] || keys['ArrowUp'] || touchControls.jump) && !this.jumping) {
-                    this.velocityY = -this.jumpPower;
-                    this.jumping = true;
-                    playJumpSound();
-                }
-                
-                // Cập nhật vị trí
-                this.x += this.velocityX;
-                this.y += this.velocityY;
-                
-                // Giới hạn trong game world
-                if (this.x < 0) this.x = 0;
-                if (this.x + this.width > GAME_WIDTH) this.x = GAME_WIDTH - this.width;
-                if (this.y > GAME_HEIGHT - this.height) {
-                    this.y = GAME_HEIGHT - this.height;
-                    this.velocityY = 0;
-                    this.jumping = false;
-                }
-                
-                // Kiểm tra va chạm với nền
-                for (let platform of platforms) {
-                    if (this.x < platform.x + platform.width &&
-                        this.x + this.width > platform.x &&
-                        this.y + this.height > platform.y &&
-                        this.y < platform.y + platform.height &&
-                        this.velocityY > 0) {
-                        this.y = platform.y - this.height;
-                        this.velocityY = 0;
-                        this.jumping = false;
-                    }
-                }
-                
-                // Kiểm tra va chạm với chướng ngại vật
-                for (let obstacle of obstacles) {
-                    if (this.x < obstacle.x + obstacle.width &&
-                        this.x + this.width > obstacle.x &&
-                        this.y + this.height > obstacle.y &&
-                        this.y < obstacle.y + obstacle.height) {
-                        // Va chạm với chướng ngại vật - quay lại điểm bắt đầu
-                        this.reset();
-                        playWrongSound();
-                    }
-                }
-                
-                // Kiểm tra va chạm với quái vật
-                for (let i = enemies.length - 1; i >= 0; i--) {
-                    let enemy = enemies[i];
-                    
-                    // Kiểm tra nếu nhân vật nhảy lên đầu quái vật
-                    if (this.velocityY > 0 && 
-                        this.x < enemy.x + enemy.width &&
-                        this.x + this.width > enemy.x &&
-                        this.y + this.height > enemy.y &&
-                        this.y < enemy.y + enemy.height / 2) {
-                        // Tiêu diệt quái vật
-                        enemies.splice(i, 1);
-                        score += 30;
-                        updateScore();
-                        playEnemyDefeatSound();
-                        this.velocityY = -this.jumpPower / 2; // Nhảy nhẹ lên
-                    }
-                    // Kiểm tra nếu quái vật chạm vào người chơi
-                    else if (!this.invincible &&
-                             this.x < enemy.x + enemy.width &&
-                             this.x + this.width > enemy.x &&
-                             this.y + this.height > enemy.y &&
-                             this.y < enemy.y + enemy.height) {
-                        // Quái vật chạm vào người chơi - quay lại điểm bắt đầu
-                        this.reset();
-                        playEnemyHitSound();
-                        this.invincible = true;
-                        this.invincibleTimer = 60; // 1 giây bất tử
-                    }
-                }
-                
-                // Kiểm tra nhặt đồng tiền
-                for (let i = coins.length - 1; i >= 0; i--) {
-                    let coin = coins[i];
-                    if (this.x < coin.x + coin.width &&
-                        this.x + this.width > coin.x &&
-                        this.y + this.height > coin.y &&
-                        this.y < coin.y + coin.height) {
-                        // Nhặt được đồng tiền
-                        coins.splice(i, 1);
-                        score += 10;
-                        updateScore();
-                        playCoinSound();
-                    }
-                }
-                
-                // Kiểm tra đến đích
-                if (this.x < goal.x + goal.width &&
-                    this.x + this.width > goal.x &&
-                    this.y + this.height > goal.y &&
-                    this.y < goal.y + goal.height) {
-                    // Đến đích - hiển thị câu hỏi
-                    showQuestion();
-                }
-                
-                // Cập nhật camera
-                updateCamera();
+            switch (type) {
+                case 'jump':
+                    osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                    break;
+                case 'coin':
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(1000, now); osc.frequency.setValueAtTime(1500, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
+                    break;
+                case 'enemy':
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(50, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                    break;
+                case 'win':
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1); osc.frequency.setValueAtTime(784, now + 0.2);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.5);
+                    osc.start(now); osc.stop(now + 0.5);
+                    break;
+                case 'lose':
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
+                    break;
+                case 'roar':
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.linearRampToValueAtTime(50, now + 1.5);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now + 1.5);
+                    osc.start(now); osc.stop(now + 1.5);
+                    break;
+                case 'scream':
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.linearRampToValueAtTime(1200, now + 0.2); osc.frequency.linearRampToValueAtTime(600, now + 1.0);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 1.0);
+                    osc.start(now); osc.stop(now + 1.0);
+                    break;
+                case 'love':
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(440, now); osc.frequency.linearRampToValueAtTime(660, now + 0.5); osc.frequency.linearRampToValueAtTime(880, now + 1.0);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 2.0);
+                    osc.start(now); osc.stop(now + 2.0);
+                    break;
             }
-            
-            draw() {
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                
-                // Hiệu ứng nhấp nháy khi bất tử
-                if (this.invincible && Math.floor(this.invincibleTimer / 5) % 2 === 0) {
-                    ctx.globalAlpha = 0.5;
+        };
+
+        const useBackgroundMusic = (level, enabled, isCinematic = false) => {
+            const audioCtxRef = useRef(null);
+            const intervalRef = useRef(null);
+
+            useEffect(() => {
+                if (!enabled) {
+                    if (intervalRef.current) clearInterval(intervalRef.current);
+                    return;
                 }
+
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+
+                const ctx = audioCtxRef.current;
                 
-                // Điều chỉnh hướng vẽ dựa trên hướng di chuyển
-                if (this.direction === -1) {
-                    ctx.translate(this.x + this.width, this.y);
-                    ctx.scale(-1, 1);
+                const playNote = (freq, dur, type = 'sine') => {
+                    if (ctx.state === 'suspended') ctx.resume();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.type = type;
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.02, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+                    osc.start();
+                    osc.stop(ctx.currentTime + dur);
+                };
+
+                if (intervalRef.current) clearInterval(intervalRef.current);
+
+                let melody = [];
+                let speed = 500;
+                let type = 'sine';
+
+                if (isCinematic) {
+                    // Dramatic cinematic theme
+                    melody = [100, 120, 100, 150, 80]; speed = 300; type = 'sawtooth';
                 } else {
-                    ctx.translate(this.x, this.y);
-                }
-                
-                // Mũ đỏ
-                ctx.fillStyle = '#E52521';
-                ctx.fillRect(5, 5, 30, 15);
-                ctx.fillRect(0, 15, 40, 10);
-                
-                // Tóc và tai
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(10, 20, 20, 5); // Tóc
-                ctx.fillRect(35, 15, 5, 10); // Tai phải
-                ctx.fillRect(0, 15, 5, 10);  // Tai trái
-                
-                // Mặt
-                ctx.fillStyle = '#FFC0CB';
-                ctx.fillRect(10, 25, 20, 15);
-                
-                // Mắt
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(15, 30, 3, 3);
-                ctx.fillRect(22, 30, 3, 3);
-                
-                // Ủng
-                ctx.fillStyle = '#8B4513';
-                ctx.fillRect(5, 40, 10, 20);
-                ctx.fillRect(25, 40, 10, 20);
-                
-                // Quần áo
-                ctx.fillStyle = '#3751E0';
-                ctx.fillRect(10, 40, 20, 10);
-                
-                // Tay
-                ctx.fillStyle = '#FFC0CB';
-                ctx.fillRect(5, 35, 5, 10);
-                ctx.fillRect(30, 35, 5, 10);
-                
-                ctx.restore();
-            }
-            
-            reset() {
-                this.x = 100;
-                this.y = GAME_HEIGHT - this.height - 100;
-                this.velocityX = 0;
-                this.velocityY = 0;
-                this.jumping = false;
-                // Reset camera về vị trí ban đầu
-                viewport.x = 0;
-                viewport.y = 0;
-            }
-        }
-
-        // Lớp quái vật cơ bản
-        class Enemy {
-            constructor(x, y, width, height, speed = 1, platform, type = 'basic') {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.speed = speed;
-                this.direction = 1; // 1: right, -1: left
-                this.animationFrame = 0;
-                this.platform = platform;
-                this.minX = platform.x;
-                this.maxX = platform.x + platform.width - this.width;
-                this.type = type;
-            }
-            
-            update() {
-                // Di chuyển qua lại trên nền
-                this.x += this.speed * this.direction;
-                
-                // Đổi hướng khi chạm biên của nền
-                if (this.x <= this.minX || this.x >= this.maxX) {
-                    this.direction *= -1;
-                }
-                
-                // Cập nhật animation
-                this.animationFrame = (this.animationFrame + 0.1) % 10;
-            }
-            
-            draw() {
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                ctx.translate(this.x, this.y);
-                
-                // Vẽ các loại quái vật khác nhau
-                switch(this.type) {
-                    case 'spiky':
-                        this.drawSpikyEnemy();
-                        break;
-                    case 'fire':
-                        this.drawFireEnemy();
-                        break;
-                    case 'ghost':
-                        this.drawGhostEnemy();
-                        break;
-                    case 'turtle':
-                        this.drawTurtleEnemy();
-                        break;
-                    default:
-                        this.drawBasicEnemy();
-                }
-                
-                ctx.restore();
-            }
-            
-            drawBasicEnemy() {
-                // Thân quái vật (màu xanh lá)
-                ctx.fillStyle = '#32CD32';
-                ctx.fillRect(0, 0, this.width, this.height);
-                
-                // Mắt
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(5, 5, 8, 8);
-                ctx.fillRect(this.width - 13, 5, 8, 8);
-                
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(7, 7, 4, 4);
-                ctx.fillRect(this.width - 11, 7, 4, 4);
-                
-                // Miệng
-                ctx.fillStyle = '#FF0000';
-                ctx.fillRect(10, this.height - 10, this.width - 20, 5);
-                
-                // Chân (hiệu ứng di chuyển)
-                ctx.fillStyle = '#228B22';
-                if (Math.floor(this.animationFrame) % 2 === 0) {
-                    ctx.fillRect(5, this.height, 5, 10);
-                    ctx.fillRect(this.width - 10, this.height, 5, 10);
-                } else {
-                    ctx.fillRect(10, this.height, 5, 10);
-                    ctx.fillRect(this.width - 15, this.height, 5, 10);
-                }
-            }
-            
-            drawSpikyEnemy() {
-                // Thân quái vật (màu tím)
-                ctx.fillStyle = '#8A2BE2';
-                ctx.fillRect(0, 0, this.width, this.height);
-                
-                // Gai trên lưng
-                ctx.fillStyle = '#4B0082';
-                for (let i = 5; i < this.width - 5; i += 10) {
-                    ctx.beginPath();
-                    ctx.moveTo(i, 0);
-                    ctx.lineTo(i + 5, -8);
-                    ctx.lineTo(i + 10, 0);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-                
-                // Mắt
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(8, 8, 6, 6);
-                ctx.fillRect(this.width - 14, 8, 6, 6);
-                
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(9, 9, 4, 4);
-                ctx.fillRect(this.width - 13, 9, 4, 4);
-                
-                // Chân
-                ctx.fillStyle = '#6A0DAD';
-                ctx.fillRect(8, this.height, 6, 8);
-                ctx.fillRect(this.width - 14, this.height, 6, 8);
-            }
-            
-            drawFireEnemy() {
-                // Thân quái vật (màu cam)
-                ctx.fillStyle = '#FF4500';
-                ctx.fillRect(0, 0, this.width, this.height);
-                
-                // Lửa trên đầu
-                ctx.fillStyle = '#FF0000';
-                ctx.beginPath();
-                ctx.moveTo(this.width/2, -5);
-                ctx.lineTo(this.width/2 - 8, 5);
-                ctx.lineTo(this.width/2 + 8, 5);
-                ctx.closePath();
-                ctx.fill();
-                
-                // Mắt lửa
-                ctx.fillStyle = '#FFFF00';
-                ctx.fillRect(8, 8, 6, 6);
-                ctx.fillRect(this.width - 14, 8, 6, 6);
-                
-                // Miệng
-                ctx.fillStyle = '#8B0000';
-                ctx.fillRect(10, this.height - 8, this.width - 20, 4);
-                
-                // Chân
-                ctx.fillStyle = '#B22222';
-                ctx.fillRect(8, this.height, 6, 8);
-                ctx.fillRect(this.width - 14, this.height, 6, 8);
-            }
-            
-            drawGhostEnemy() {
-                // Thân ma (màu xanh nhạt, trong suốt)
-                ctx.fillStyle = 'rgba(173, 216, 230, 0.7)';
-                ctx.beginPath();
-                ctx.moveTo(0, this.height/2);
-                ctx.quadraticCurveTo(this.width/2, 0, this.width, this.height/2);
-                ctx.quadraticCurveTo(this.width, this.height, this.width/2, this.height - 10);
-                ctx.quadraticCurveTo(0, this.height, 0, this.height/2);
-                ctx.fill();
-                
-                // Mắt ma
-                ctx.fillStyle = '#FFFFFF';
-                ctx.beginPath();
-                ctx.arc(this.width/3, this.height/3, 4, 0, Math.PI * 2);
-                ctx.arc(this.width * 2/3, this.height/3, 4, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.arc(this.width/3, this.height/3, 2, 0, Math.PI * 2);
-                ctx.arc(this.width * 2/3, this.height/3, 2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Miệng ma
-                ctx.strokeStyle = '#000000';
-                ctx.beginPath();
-                ctx.arc(this.width/2, this.height * 2/3, 6, 0, Math.PI);
-                ctx.stroke();
-            }
-            
-            drawTurtleEnemy() {
-                // Mai rùa (màu nâu)
-                ctx.fillStyle = '#8B4513';
-                ctx.beginPath();
-                ctx.ellipse(this.width/2, this.height/2, this.width/2, this.height/2, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Đầu rùa
-                ctx.fillStyle = '#228B22';
-                ctx.fillRect(this.width/2 - 8, -5, 16, 10);
-                
-                // Mắt rùa
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(this.width/2 - 6, -3, 3, 3);
-                ctx.fillRect(this.width/2 + 3, -3, 3, 3);
-                
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(this.width/2 - 5, -2, 2, 2);
-                ctx.fillRect(this.width/2 + 4, -2, 2, 2);
-                
-                // Chân rùa
-                ctx.fillStyle = '#228B22';
-                ctx.fillRect(5, this.height - 5, 6, 8);
-                ctx.fillRect(this.width - 11, this.height - 5, 6, 8);
-            }
-        }
-
-        // Lớp nền
-        class Platform {
-            constructor(x, y, width, height, color = '#8B4513') {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color;
-            }
-            
-            draw() {
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Vẽ texture gạch
-                ctx.fillStyle = '#A0522D';
-                for (let i = 0; i < this.width; i += 20) {
-                    for (let j = 0; j < this.height; j += 10) {
-                        ctx.fillRect(this.x + i, this.y + j, 18, 8);
+                    switch(level) {
+                        case 1: melody = [523, 659, 784, 1046]; speed = 400; type = 'sine'; break;
+                        case 2: melody = [261, 293, 329, 349]; speed = 600; type = 'triangle'; break;
+                        case 3: melody = [392, 440, 493, 523]; speed = 700; type = 'sine'; break;
+                        case 4: melody = [196, 220, 246, 261]; speed = 800; type = 'square'; break;
+                        case 5: melody = [130, 146, 164, 174, 196]; speed = 200; type = 'sawtooth'; break;
+                        default: melody = [440];
                     }
                 }
-                
-                ctx.restore();
-            }
-        }
 
-        // Lớp chướng ngại vật
-        class Obstacle {
-            constructor(x, y, width, height, color = '#FF0000') {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color;
-            }
-            
-            draw() {
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Vẽ gai
-                ctx.fillStyle = '#000';
-                for (let i = 0; i < this.width; i += 10) {
-                    ctx.beginPath();
-                    ctx.moveTo(this.x + i, this.y + this.height);
-                    ctx.lineTo(this.x + i + 5, this.y);
-                    ctx.lineTo(this.x + i + 10, this.y + this.height);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-                
-                ctx.restore();
-            }
-        }
+                let idx = 0;
+                intervalRef.current = setInterval(() => {
+                    playNote(melody[idx], speed/1000, type);
+                    idx = (idx + 1) % melody.length;
+                }, speed);
 
-        // Lớp đồng tiền
-        class Coin {
-            constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.width = 20;
-                this.height = 20;
-                this.collected = false;
-                this.animationFrame = 0;
-            }
-            
-            update() {
-                this.animationFrame = (this.animationFrame + 0.1) % 10;
-            }
-            
-            draw() {
-                if (this.collected) return;
-                
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                ctx.translate(this.x + this.width/2, this.y + this.height/2);
-                
-                // Hiệu ứng xoay
-                ctx.rotate(this.animationFrame * 0.2);
-                
-                // Vẽ đồng tiền vàng
-                ctx.fillStyle = '#FFD700';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.width/2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#FFA500';
-                ctx.beginPath();
-                ctx.arc(0, 0, this.width/3, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.restore();
-            }
-        }
+                return () => {
+                    if (intervalRef.current) clearInterval(intervalRef.current);
+                };
+            }, [level, enabled, isCinematic]);
+        };
 
-        // Lớp đích - THAY ĐỔI: Ô cửa câu hỏi thay vì cờ
-        class Goal {
-            constructor(x, y, width, height) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-            }
+        // --- GAME ENGINE ---
+        const Game = () => {
+            const canvasRef = useRef(null);
+            const titleRef = useRef(null);
+            const [gameState, setGameState] = useState('START');
+            const [score, setScore] = useState(0);
+            const [level, setLevel] = useState(1);
+            const [questionsAnsweredInLevel, setQuestionsAnsweredInLevel] = useState(0);
+            const [soundEnabled, setSoundEnabled] = useState(true);
+            const [playerName, setPlayerName] = useState("Người chơi");
+            const [selectedOption, setSelectedOption] = useState(null);
+            const [feedback, setFeedback] = useState(null);
             
-            draw() {
-                ctx.save();
-                
-                // Áp dụng scale và offset
-                ctx.translate(offsetX, offsetY);
-                ctx.scale(gameScale, gameScale);
-                
-                // Áp dụng camera transform
-                ctx.translate(-viewport.x, -viewport.y);
-                
-                // Vẽ khung cửa
-                ctx.fillStyle = '#8B4513'; // Màu nâu cho khung cửa
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-                
-                // Vẽ cửa chính
-                ctx.fillStyle = '#A0522D'; // Màu nâu đậm hơn cho cửa
-                ctx.fillRect(this.x + 5, this.y + 5, this.width - 10, this.height - 10);
-                
-                // Vẽ tay nắm cửa
-                ctx.fillStyle = '#FFD700'; // Màu vàng cho tay nắm
-                ctx.beginPath();
-                ctx.arc(this.x + this.width - 15, this.y + this.height / 2, 5, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // Vẽ biển "Ô cửa câu hỏi"
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = 'bold 14px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('Ô CỬA', this.x + this.width / 2, this.y - 25);
-                ctx.fillText('CÂU HỎI', this.x + this.width / 2, this.y - 10);
-                
-                ctx.restore();
-            }
-        }
+            useBackgroundMusic(level, soundEnabled, gameState === 'INTRO_CINEMATIC');
 
-        // Vẽ công chúa
-        function drawPrincess(x, y, width, height) {
-            const princessCanvas = document.createElement('canvas');
-            princessCanvas.width = width;
-            princessCanvas.height = height;
-            const pctx = princessCanvas.getContext('2d');
-            
-            // Vương miện
-            pctx.fillStyle = '#FFD700';
-            pctx.beginPath();
-            pctx.moveTo(width/2, 5);
-            pctx.lineTo(width/2 - 10, 15);
-            pctx.lineTo(width/2 + 10, 15);
-            pctx.closePath();
-            pctx.fill();
-            
-            // Tóc
-            pctx.fillStyle = '#FFD700';
-            pctx.fillRect(width/2 - 15, 15, 30, 25);
-            
-            // Mặt
-            pctx.fillStyle = '#FFC0CB';
-            pctx.fillRect(width/2 - 10, 20, 20, 15);
-            
-            // Mắt
-            pctx.fillStyle = '#000000';
-            pctx.fillRect(width/2 - 7, 25, 3, 3);
-            pctx.fillRect(width/2 + 4, 25, 3, 3);
-            
-            // Đầm màu hồng
-            pctx.fillStyle = '#FF69B4';
-            pctx.fillRect(width/2 - 15, 40, 30, 45);
-            
-            // Tay
-            pctx.fillStyle = '#FFC0CB';
-            pctx.fillRect(width/2 - 20, 40, 5, 20);
-            pctx.fillRect(width/2 + 15, 40, 5, 20);
-            
-            // Vẽ vào container
-            princessContainer.innerHTML = '';
-            princessContainer.appendChild(princessCanvas);
-        }
-
-        // Cập nhật điểm số
-        function updateScore() {
-            scoreIndicator.textContent = `Điểm: ${score}`;
-            headerScore.textContent = `Điểm: ${score}`;
-        }
-
-        // Cập nhật tên người chơi
-        function updatePlayerName() {
-            playerNameIndicator.textContent = `Người chơi: ${playerName}`;
-        }
-
-        // Cập nhật cấp độ
-        function updateLevel() {
-            levelIndicator.textContent = `Cấp độ: ${currentLevel}/5`;
-            headerLevel.textContent = `Cấp độ: ${currentLevel}/5`;
-        }
-
-        // Tạo đồng tiền ngẫu nhiên
-        function generateCoins() {
-            coins = [];
-            const numCoins = 8 + Math.floor(Math.random() * 7); // 8-14 đồng tiền
-            
-            for (let i = 0; i < numCoins; i++) {
-                let validPosition = false;
-                let x, y;
-                
-                while (!validPosition) {
-                    x = 100 + Math.random() * (GAME_WIDTH - 200);
-                    y = 100 + Math.random() * (GAME_HEIGHT - 200);
-                    
-                    // Kiểm tra xem vị trí có hợp lệ không (không chồng lên chướng ngại vật)
-                    validPosition = true;
-                    for (let obstacle of obstacles) {
-                        if (x < obstacle.x + obstacle.width &&
-                            x + 20 > obstacle.x &&
-                            y < obstacle.y + obstacle.height &&
-                            y + 20 > obstacle.y) {
-                            validPosition = false;
-                            break;
-                        }
-                    }
-                    
-                    // Kiểm tra xem có trên nền không
-                    let onPlatform = false;
-                    for (let platform of platforms) {
-                        if (y + 20 >= platform.y && y <= platform.y + platform.height &&
-                            x + 20 >= platform.x && x <= platform.x + platform.width) {
-                            onPlatform = true;
-                            // Đặt đồng tiền trên nền
-                            y = platform.y - 20;
-                            break;
-                        }
-                    }
-                    
-                    if (!onPlatform) validPosition = false;
-                }
-                
-                coins.push(new Coin(x, y));
-            }
-        }
-
-        // Tạo quái vật với số lượng tăng dần theo cấp độ
-        function generateEnemies() {
-            enemies = [];
-            
-            // Chỉ tạo quái vật trên các nền phụ (trừ nền chính)
-            const availablePlatforms = platforms.filter(p => p.y < GAME_HEIGHT - 30);
-            
-            // Số lượng quái vật tăng dần theo cấp độ
-            let enemyCount;
-            switch(currentLevel) {
-                case 1:
-                    enemyCount = 1; // Màn 1: 1 quái vật
-                    break;
-                case 2:
-                    enemyCount = 2; // Màn 2: 2 quái vật
-                    break;
-                case 3:
-                    enemyCount = 3; // Màn 3: 3 quái vật
-                    break;
-                case 4:
-                    enemyCount = 4; // Màn 4: 4 quái vật
-                    break;
-                case 5:
-                    enemyCount = 5; // Màn 5: 5 quái vật
-                    break;
-                default:
-                    enemyCount = 1;
-            }
-            
-            // Chọn ngẫu nhiên các nền để đặt quái vật
-            const selectedPlatforms = [];
-            while (selectedPlatforms.length < enemyCount && selectedPlatforms.length < availablePlatforms.length) {
-                const randomPlatform = availablePlatforms[Math.floor(Math.random() * availablePlatforms.length)];
-                if (!selectedPlatforms.includes(randomPlatform)) {
-                    selectedPlatforms.push(randomPlatform);
-                }
-            }
-            
-            // Tạo quái vật trên các nền đã chọn
-            for (let platform of selectedPlatforms) {
-                // Tạo vị trí ngẫu nhiên trên nền
-                const x = platform.x + 10 + Math.random() * (platform.width - 60);
-                const y = platform.y - 40; // Đặt quái vật trên nền
-                
-                const speed = 1 + Math.random() * 1; // Tốc độ ngẫu nhiên
-                
-                // Chọn ngẫu nhiên loại quái vật
-                const enemyTypes = ['basic', 'spiky', 'fire', 'ghost', 'turtle'];
-                const randomType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-                
-                enemies.push(new Enemy(x, y, 40, 40, speed, platform, randomType));
-            }
-        }
-
-        // Khởi tạo trò chơi
-        function initGame() {
-            player = new Player();
-            platforms = [];
-            obstacles = [];
-            enemies = [];
-            coins = [];
-            
-            // Tạo nền chính
-            platforms.push(new Platform(0, GAME_HEIGHT - 30, GAME_WIDTH, 30, '#8B4513'));
-            
-            // Tạo các nền và chướng ngại vật dựa trên cấp độ
-            switch(currentLevel) {
-                case 1:
-                    platforms.push(new Platform(200, GAME_HEIGHT - 100, 150, 20, '#8B4513'));
-                    platforms.push(new Platform(500, GAME_HEIGHT - 150, 150, 20, '#8B4513'));
-                    platforms.push(new Platform(800, GAME_HEIGHT - 200, 150, 20, '#8B4513'));
-                    obstacles.push(new Obstacle(350, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(650, GAME_HEIGHT - 60, 40, 30));
-                    goal = new Goal(1000, GAME_HEIGHT - 220, 50, 70);
-                    break;
-                case 2:
-                    platforms.push(new Platform(150, GAME_HEIGHT - 100, 120, 20, '#8B4513'));
-                    platforms.push(new Platform(400, GAME_HEIGHT - 150, 120, 20, '#8B4513'));
-                    platforms.push(new Platform(650, GAME_HEIGHT - 200, 120, 20, '#8B4513'));
-                    platforms.push(new Platform(900, GAME_HEIGHT - 150, 120, 20, '#8B4513'));
-                    obstacles.push(new Obstacle(280, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(530, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(780, GAME_HEIGHT - 60, 40, 30));
-                    goal = new Goal(1050, GAME_HEIGHT - 170, 50, 70);
-                    break;
-                case 3:
-                    platforms.push(new Platform(100, GAME_HEIGHT - 100, 100, 20, '#8B4513'));
-                    platforms.push(new Platform(300, GAME_HEIGHT - 150, 100, 20, '#8B4513'));
-                    platforms.push(new Platform(500, GAME_HEIGHT - 200, 100, 20, '#8B4513'));
-                    platforms.push(new Platform(700, GAME_HEIGHT - 250, 100, 20, '#8B4513'));
-                    platforms.push(new Platform(900, GAME_HEIGHT - 200, 100, 20, '#8B4513'));
-                    obstacles.push(new Obstacle(200, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(400, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(600, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(800, GAME_HEIGHT - 60, 40, 30));
-                    goal = new Goal(1050, GAME_HEIGHT - 220, 50, 70);
-                    break;
-                case 4:
-                    platforms.push(new Platform(100, GAME_HEIGHT - 100, 90, 20, '#8B4513'));
-                    platforms.push(new Platform(250, GAME_HEIGHT - 150, 90, 20, '#8B4513'));
-                    platforms.push(new Platform(400, GAME_HEIGHT - 200, 90, 20, '#8B4513'));
-                    platforms.push(new Platform(550, GAME_HEIGHT - 250, 90, 20, '#8B4513'));
-                    platforms.push(new Platform(700, GAME_HEIGHT - 200, 90, 20, '#8B4513'));
-                    platforms.push(new Platform(850, GAME_HEIGHT - 150, 90, 20, '#8B4513'));
-                    obstacles.push(new Obstacle(175, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(325, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(475, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(625, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(775, GAME_HEIGHT - 60, 40, 30));
-                    goal = new Goal(1000, GAME_HEIGHT - 170, 50, 70);
-                    break;
-                case 5:
-                    platforms.push(new Platform(100, GAME_HEIGHT - 100, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(220, GAME_HEIGHT - 150, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(340, GAME_HEIGHT - 200, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(460, GAME_HEIGHT - 250, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(580, GAME_HEIGHT - 300, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(700, GAME_HEIGHT - 250, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(820, GAME_HEIGHT - 200, 80, 20, '#8B4513'));
-                    platforms.push(new Platform(940, GAME_HEIGHT - 150, 80, 20, '#8B4513'));
-                    obstacles.push(new Obstacle(160, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(280, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(400, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(520, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(640, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(760, GAME_HEIGHT - 60, 40, 30));
-                    obstacles.push(new Obstacle(880, GAME_HEIGHT - 60, 40, 30));
-                    goal = new Goal(1050, GAME_HEIGHT - 170, 50, 70);
-                    break;
-            }
-            
-            // Tạo đồng tiền và quái vật
-            generateCoins();
-            generateEnemies();
-            
-            // Thiết lập môi trường
-            setupEnvironment();
-            
-            // Cập nhật chỉ số
-            updateLevel();
-            updateScore();
-            updatePlayerName();
-            
-            // Reset camera
-            viewport.x = 0;
-            viewport.y = 0;
-            
-            // Hiển thị hướng dẫn
-            instructions.style.display = 'block';
-            setTimeout(() => {
-                instructions.style.display = 'none';
-            }, 5000);
-        }
-
-        // Vẽ trò chơi
-        function draw() {
-            // Xóa canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Vẽ môi trường
-            drawEnvironment();
-            
-            // Vẽ các đối tượng game
-            for (let platform of platforms) {
-                platform.draw();
-            }
-            
-            for (let obstacle of obstacles) {
-                obstacle.draw();
-            }
-            
-            for (let coin of coins) {
-                coin.update();
-                coin.draw();
-            }
-            
-            for (let enemy of enemies) {
-                enemy.update();
-                enemy.draw();
-            }
-            
-            goal.draw();
-            player.draw();
-        }
-
-        // Vòng lặp trò chơi
-        function gameLoop() {
-            try {
-                if (!gameRunning) return;
-                
-                player.update();
-                updateEnvironment();
-                
-                // Phát âm thanh sấm sét
-                if (environment.lightningActive && environment.weather === 'rainy' && currentLevel === 5) {
-                    playThunderSound();
-                }
-                
-                draw();
-                
-                requestAnimationFrame(gameLoop);
-            } catch (error) {
-                handleGameError(error);
-            }
-        }
-
-        // Hiển thị câu hỏi
-        function showQuestion() {
-            gameRunning = false;
-            questionScreen.style.display = 'flex';
-            questionNumber.textContent = `Câu hỏi ${currentLevel}`;
-            questionText.textContent = questions[currentQuestion].text;
-            
-            // Xóa các đáp án cũ
-            answersContainer.innerHTML = '';
-            selectedAnswer = null;
-            
-            // Thêm các đáp án mới
-            questions[currentQuestion].options.forEach((option, index) => {
-                const answerElement = document.createElement('div');
-                answerElement.className = 'answer-option';
-                answerElement.textContent = option;
-                answerElement.dataset.index = index;
-                answerElement.addEventListener('click', () => {
-                    // Bỏ chọn tất cả
-                    document.querySelectorAll('.answer-option').forEach(el => {
-                        el.classList.remove('selected');
-                    });
-                    
-                    // Chọn đáp án này
-                    answerElement.classList.add('selected');
-                    selectedAnswer = index;
-                });
-                
-                answersContainer.appendChild(answerElement);
+            const engine = useRef({
+                running: false,
+                lastTime: 0,
+                cinematicTime: 0, 
+                player: { 
+                    x: 100, y: 500, vx: 0, vy: 0, 
+                    width: 50, height: 75, 
+                    onGround: false, frame: 0, direction: 1,
+                    skinColor: { coat: '#FFF', hat: '#E52521', pants: '#3751E0' }
+                },
+                camera: { x: 0, y: 0 },
+                keys: { left: false, right: false, up: false },
+                platforms: [],
+                coins: [],
+                enemies: [],
+                clouds: [],
+                mountains: [],
+                critters: [],
+                decor: [],
+                goal: { x: 0, y: 0, w: 100, h: 140 },
+                particles: [],
+                weather: { rain: false, storm: false, night: false, flash: 0, sun: {x: 0, y: 0} }
             });
-        }
 
-        // Kiểm tra đáp án
-        function checkAnswer() {
-            if (selectedAnswer === null) {
-                alert('Vui lòng chọn một đáp án!');
-                return;
-            }
-            
-            const isCorrect = selectedAnswer === questions[currentQuestion].correct;
-            
-            if (isCorrect) {
-                resultText.textContent = 'Đáp án đúng!';
-                resultMessage.textContent = 'Bạn đã trả lời đúng. Tiếp tục cuộc phiêu lưu!';
-                score += 50; // Thêm điểm khi trả lời đúng
-                updateScore();
-                playCorrectSound();
+            const initLevel = useCallback((lvl) => {
+                const eng = engine.current;
+                eng.player.x = 100;
+                eng.player.y = 500;
+                eng.player.vx = 0;
+                eng.player.vy = 0;
+                eng.camera.x = 0;
+                eng.particles = [];
+                eng.weather.flash = 0;
                 
-                // Chuyển sang cấp độ tiếp theo
-                currentLevel++;
-                currentQuestion++;
+                let numPlatforms = 2 + Math.floor(lvl/2) + 1; 
+                let enemyTypes = ['basic'];
+                let decorTypes = ['bush', 'rock', 'flower', 'tree'];
+                let enemySpeedBase = 1.5 + lvl * 0.3;
+                let gapSize = 80 + (lvl * 10);
                 
-                if (currentLevel > 5) {
-                    // Hoàn thành trò chơi
-                    resultBtn.textContent = 'Kết thúc';
-                } else {
-                    resultBtn.textContent = 'Tiếp tục';
+                switch(lvl) {
+                    case 1: 
+                        eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 200, y: 150} };
+                        eng.player.skinColor = { coat: '#FFFFFF', hat: '#E52521', pants: '#3751E0' };
+                        decorTypes = ['flask', 'bush', 'flower', 'tree'];
+                        break;
+                    case 2: 
+                        eng.weather = { rain: true, storm: false, night: false, flash: 0, sun: {x: -100, y: -100} };
+                        eng.player.skinColor = { coat: '#87CEEB', hat: '#32CD32', pants: '#8A2BE2' };
+                        enemyTypes = ['basic', 'spiky'];
+                        decorTypes = ['rock', 'tree'];
+                        break;
+                    case 3: 
+                        eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 800, y: 400} }; 
+                        eng.player.skinColor = { coat: '#FFD700', hat: '#FF4500', pants: '#8B4513' };
+                        enemyTypes = ['basic', 'turtle'];
+                        decorTypes = ['bush', 'flower', 'rock', 'tree'];
+                        break;
+                    case 4: 
+                        eng.weather = { rain: false, storm: false, night: true, flash: 0, sun: {x: 1000, y: 100} }; 
+                        eng.player.skinColor = { coat: '#8A2BE2', hat: '#FF69B4', pants: '#228B22' };
+                        enemyTypes = ['ghost', 'spiky'];
+                        decorTypes = ['rock', 'tree'];
+                        break;
+                    case 5: 
+                        eng.weather = { rain: true, storm: true, night: true, flash: 0, sun: {x: -100, y: -100} };
+                        eng.player.skinColor = { coat: '#FF0000', hat: '#FFFF00', pants: '#0000FF' };
+                        enemyTypes = ['fire', 'ghost', 'spiky'];
+                        decorTypes = ['rock']; 
+                        break;
                 }
-            } else {
-                resultText.textContent = 'Đáp án sai!';
-                resultMessage.textContent = 'Bạn đã trả lời sai. Quay lại điểm xuất phát!';
-                playWrongSound();
-                player.reset();
-                resultBtn.textContent = 'Thử lại';
-            }
-            
-            resultScreen.style.display = 'flex';
-            questionScreen.style.display = 'none';
-        }
 
-        // Thêm hàm xử lý lỗi chung
-        function handleGameError(error) {
-            console.error('Game error:', error);
-            // Hiển thị thông báo lỗi thân thiện
-            if (!document.getElementById('error-message')) {
-                const errorDiv = document.createElement('div');
-                errorDiv.id = 'error-message';
-                errorDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(0,0,0,0.8);
-                    color: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    z-index: 1000;
-                    text-align: center;
-                `;
-                errorDiv.innerHTML = `
-                    <h3>Đã xảy ra lỗi</h3>
-                    <p>Vui lòng thử làm mới trang</p>
-                    <button onclick="location.reload()" style="padding: 10px 20px; margin-top: 10px;">Làm mới</button>
-                `;
-                document.body.appendChild(errorDiv);
-            }
-        }
+                eng.platforms = [];
+                eng.enemies = [];
+                eng.coins = [];
+                eng.clouds = [];
+                eng.mountains = [];
+                eng.decor = [];
+                eng.critters = [];
 
-        // Xử lý sự kiện
-        loginBtn.addEventListener('click', () => {
-            const name = playerNameInput.value.trim();
-            if (name) {
-                playerName = name;
-                welcomeName.textContent = playerName;
-                congratsName.textContent = playerName;
-                loginScreen.style.display = 'none';
-                startScreen.style.display = 'flex';
-            } else {
-                alert('Vui lòng nhập tên nhân vật!');
-            }
-        });
+                // Ground at start
+                eng.platforms.push({ x: -200, y: GAME_HEIGHT - 60, w: 500, h: 60 });
+                eng.decor.push({x: 50, y: GAME_HEIGHT - 60, type: 'tree'});
+                eng.decor.push({x: 150, y: GAME_HEIGHT - 60, type: 'bush'});
 
-        playerNameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                loginBtn.click();
-            }
-        });
+                let currentX = 300;
+                let currentY = GAME_HEIGHT - 60;
 
-        startBtn.addEventListener('click', () => {
-            startScreen.style.display = 'none';
-            gameRunning = true;
-            initGame();
-            playBackgroundMusic();
-            gameLoop();
-        });
+                for (let i = 0; i < numPlatforms; i++) {
+                    const w = lvl === 1 ? 250 : 180 + Math.random() * 50; 
+                    const h = 40;
+                    const x = currentX + gapSize + Math.random() * 30;
+                    let y = currentY + (Math.random() - 0.5) * 120;
+                    y = Math.max(300, Math.min(GAME_HEIGHT - 120, y));
 
-        restartBtn.addEventListener('click', () => {
-            endScreen.style.display = 'none';
-            currentLevel = 1;
-            currentQuestion = 0;
-            score = 0;
-            gameRunning = true;
-            initGame();
-            gameLoop();
-        });
+                    eng.platforms.push({ x, y, w, h });
+                    
+                    if (Math.random() > 0.3) eng.coins.push({ x: x + w/2 - 15, y: y - 60, collected: false });
 
-        submitBtn.addEventListener('click', checkAnswer);
+                    const decorType = decorTypes[Math.floor(Math.random() * decorTypes.length)];
+                    eng.decor.push({ 
+                        x: x + Math.random() * (w - 60), 
+                        y: y, 
+                        type: decorType 
+                    });
+                    if (Math.random() > 0.5) {
+                        eng.decor.push({ 
+                            x: x + Math.random() * (w - 40), 
+                            y: y, 
+                            type: 'flower'
+                        });
+                    }
 
-        resultBtn.addEventListener('click', () => {
-            resultScreen.style.display = 'none';
-            
-            if (currentLevel > 5) {
-                // Kết thúc trò chơi - vẽ công chúa
-                drawPrincess(0, 0, 80, 100);
-                finalScore.textContent = `Tổng điểm: ${score}`;
-                endScreen.style.display = 'flex';
-                playWinSound();
-            } else {
-                // Tiếp tục trò chơi
-                gameRunning = true;
-                initGame();
-                gameLoop();
-            }
-        });
+                    if (i >= 0 && Math.random() > (0.6 - lvl * 0.1)) {
+                        const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+                        eng.enemies.push({
+                            x: x + 20, y: y - 40, w: 40, h: 40,
+                            vx: enemySpeedBase, type,
+                            limitX: [x, x + w - 40],
+                            dead: false
+                        });
+                    }
 
-        // Bật/tắt âm thanh
-        audioToggle.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            audioToggle.textContent = soundEnabled ? '🔊' : '🔇';
-        });
+                    currentX = x + w;
+                    currentY = y;
+                }
 
-        // Fullscreen toggle
-        fullscreenToggle.addEventListener('click', toggleFullscreen);
+                const goalPlatformY = Math.max(200, Math.min(GAME_HEIGHT - 100, currentY + (Math.random() - 0.5) * 50));
+                const goalPlatformX = currentX + 120; 
+                eng.platforms.push({ x: goalPlatformX, y: goalPlatformY, w: 300, h: 40 });
+                eng.goal = { x: goalPlatformX + 100, y: goalPlatformY - 140, w: 100, h: 140 };
+                eng.decor.push({x: goalPlatformX + 20, y: goalPlatformY, type: 'bush'});
+                eng.decor.push({x: goalPlatformX + 220, y: goalPlatformY, type: 'tree'});
+                
+                // Mountains (Parallax)
+                for(let i=0; i<5; i++) {
+                    eng.mountains.push({
+                        x: Math.random() * GAME_WIDTH * 2,
+                        y: GAME_HEIGHT - 100 + Math.random()*50,
+                        scale: 0.5 + Math.random()
+                    });
+                }
 
-        // Xử lý sự kiện bàn phím
-        window.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-        });
+                // Clouds
+                for (let i=0; i<15; i++) {
+                    const type = lvl === 5 || lvl === 2 ? 'cloud_dark' : (lvl === 3 ? 'cloud_sunset' : 'cloud_white');
+                    eng.clouds.push({
+                        x: Math.random() * GAME_WIDTH * 2,
+                        y: Math.random() * GAME_HEIGHT / 2,
+                        scale: 0.5 + Math.random() * 1.0,
+                        speed: 0.2 + Math.random() * 0.4,
+                        type
+                    });
+                }
 
-        window.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
+                if (!eng.weather.rain && !eng.weather.storm) {
+                    for(let i=0; i<8; i++) { 
+                        eng.critters.push({
+                            x: Math.random() * GAME_WIDTH,
+                            y: 100 + Math.random() * 300,
+                            vx: 1 + Math.random(),
+                            vy: 0,
+                            type: Math.random() > 0.5 ? 'butterfly' : 'bird'
+                        });
+                    }
+                }
+            }, []);
 
-        // Xử lý điều khiển cảm ứng
-        leftBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchControls.left = true;
-        });
+            const createParticles = (x, y, color) => {
+                for(let i=0; i<12; i++) {
+                    engine.current.particles.push({
+                        x, y, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15, life: 30, color
+                    });
+                }
+            };
 
-        leftBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            touchControls.left = false;
-        });
+            // RESET TO START
+            const resetPlayer = () => {
+                const eng = engine.current;
+                eng.player.x = 100;
+                eng.player.y = 500;
+                eng.player.vx = 0;
+                eng.player.vy = 0;
+                eng.player.direction = 1;
+                eng.camera.x = 0;
+                setScore(s => Math.max(0, s - 20)); 
+                playSound('lose');
+                createParticles(eng.player.x, eng.player.y, '#F00');
+            };
 
-        rightBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchControls.right = true;
-        });
+            useEffect(() => {
+                initAssets();
+                if (gameState === 'START' && titleRef.current) {
+                    const ctx = titleRef.current.getContext('2d');
+                    const art = assetCache['title_art'];
+                    if(ctx && art) {
+                        ctx.drawImage(art, 0, 0, titleRef.current.width, titleRef.current.height);
+                    }
+                }
+            }, [gameState]);
 
-        rightBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            touchControls.right = false;
-        });
+            useEffect(() => {
+                let requestID;
 
-        jumpBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchControls.jump = true;
-        });
+                const loop = (timestamp) => {
+                    if (!engine.current.running && gameState !== 'INTRO_CINEMATIC' && gameState !== 'OUTRO_CINEMATIC') return;
 
-        jumpBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            touchControls.jump = false;
-        });
+                    const eng = engine.current;
+                    const dt = Math.min(timestamp - eng.lastTime, 50) / 16.67; 
+                    eng.lastTime = timestamp;
 
-        // Ngăn chặn cuộn trang trên thiết bị cảm ứng
-        document.addEventListener('touchmove', (e) => {
-            if (e.target === canvas || 
-                e.target === leftBtn || 
-                e.target === rightBtn || 
-                e.target === jumpBtn) {
+                    if (gameState === 'INTRO_CINEMATIC') {
+                        updateCinematic(dt);
+                        drawCinematic();
+                    } else if (gameState === 'OUTRO_CINEMATIC') {
+                        updateOutro(dt);
+                        drawOutro();
+                    } else {
+                        update(dt);
+                        draw();
+                    }
+                    requestID = requestAnimationFrame(loop);
+                };
+
+                const updateCinematic = (dt) => {
+                    engine.current.cinematicTime += 1 * dt;
+                    const frame = engine.current.cinematicTime;
+                    
+                    if (Math.floor(frame) === 150) playSound('roar');
+                    if (Math.floor(frame) === 250) playSound('scream');
+
+                    if (frame > 650) { // Extended time
+                        setGameState('INSTRUCTIONS');
+                        engine.current.running = false;
+                    }
+                };
+
+                const updateOutro = (dt) => {
+                    engine.current.cinematicTime += 1 * dt;
+                    const frame = engine.current.cinematicTime;
+                    if (Math.floor(frame) === 150) playSound('love');
+                    if (frame > 350) {
+                        setGameState('END');
+                        engine.current.running = false;
+                    }
+                };
+
+                const drawOutro = () => {
+                    const canvas = canvasRef.current;
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+                    const frame = engine.current.cinematicTime;
+
+                    // Background (Sunny Castle)
+                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+                    grd.addColorStop(0, '#87CEEB'); grd.addColorStop(1, '#E1F5FE');
+                    ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+                    // Ground
+                    ctx.fillStyle = '#2E7D32'; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
+
+                    // Castle
+                    const castle = assetCache['castle'];
+                    if(castle) ctx.drawImage(castle, GAME_WIDTH/2 - 150, GAME_HEIGHT - 450);
+
+                    // Decor
+                    const tree = assetCache['tree'];
+                    if (tree) {
+                        ctx.drawImage(tree, 100, GAME_HEIGHT - 200, 150, 200);
+                        ctx.drawImage(tree, GAME_WIDTH - 250, GAME_HEIGHT - 220, 160, 220);
+                    }
+
+                    // Mario & Peach meeting
+                    let pX = 1000;
+                    let mX = 600;
+                    
+                    if (frame < 100) {
+                        pX = 1000 - frame;
+                        mX = 600 + frame;
+                    } else {
+                        pX = 900;
+                        mX = 700;
+                    }
+                    const meetY = GAME_HEIGHT - 170;
+
+                    // Draw Mario
+                    const mario = engine.current.player;
+                    mario.x = mX; mario.y = meetY + 20; mario.skinColor = { coat: '#FF0000', hat: '#FFFF00', pants: '#0000FF' };
+                    drawPlayer(ctx, mario);
+
+                    // Draw Princess
+                    const princess = assetCache['princess'];
+                    if (princess) ctx.drawImage(princess, pX, meetY);
+
+                    // Heart & Text
+                    if (frame > 100) {
+                        ctx.fillStyle = '#E91E63';
+                        ctx.font = '50px Arial';
+                        ctx.fillText('❤️', (mX+pX)/2 + 25, meetY - 20);
+                        
+                        ctx.fillStyle = '#FFF';
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.ellipse((mX+pX)/2 + 25, meetY - 80, 140, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+                        ctx.fillText("Cảm ơn hoàng tử!", (mX+pX)/2 + 25, meetY - 75);
+                    }
+                };
+
+                const drawCinematic = () => {
+                    const canvas = canvasRef.current;
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+                    const frame = engine.current.cinematicTime;
+
+                    // Background: Sky
+                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+                    grd.addColorStop(0, '#87CEEB'); grd.addColorStop(1, '#E1F5FE');
+                    ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+                    // Mountains
+                    const mtn = assetCache['mountain'];
+                    if (mtn) {
+                        ctx.drawImage(mtn, 0, GAME_HEIGHT - 350, 600, 400);
+                        ctx.drawImage(mtn, 800, GAME_HEIGHT - 300, 500, 350);
+                    }
+
+                    // Ground (Forest Floor)
+                    const groundGrad = ctx.createLinearGradient(0, GAME_HEIGHT - 80, 0, GAME_HEIGHT);
+                    groundGrad.addColorStop(0, '#2E7D32'); groundGrad.addColorStop(1, '#1B5E20');
+                    ctx.fillStyle = groundGrad; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
+
+                    // Castle
+                    const castle = assetCache['castle'];
+                    if(castle) ctx.drawImage(castle, GAME_WIDTH/2 - 150, GAME_HEIGHT - 450);
+
+                    // Forest Details
+                    const tree = assetCache['tree'];
+                    const bush = assetCache['bush'];
+                    const flower = assetCache['flower'];
+                    
+                    if (tree) {
+                        ctx.drawImage(tree, 100, GAME_HEIGHT - 200, 150, 200);
+                        ctx.drawImage(tree, GAME_WIDTH - 200, GAME_HEIGHT - 220, 160, 220);
+                        ctx.drawImage(tree, 300, GAME_HEIGHT - 180, 120, 180);
+                    }
+
+                    if (bush) {
+                        ctx.drawImage(bush, 200, GAME_HEIGHT - 80);
+                        ctx.drawImage(bush, GAME_WIDTH - 300, GAME_HEIGHT - 90);
+                        ctx.drawImage(bush, GAME_WIDTH/2 - 250, GAME_HEIGHT - 80);
+                    }
+                    if (flower) {
+                        ctx.drawImage(flower, 450, GAME_HEIGHT - 70);
+                        ctx.drawImage(flower, GAME_WIDTH - 450, GAME_HEIGHT - 75);
+                    }
+                    
+                    const princess = assetCache['princess'];
+                    let pX = GAME_WIDTH/2 - 40;
+                    let pY = GAME_HEIGHT - 170;
+                    
+                    const dragon = assetCache['dragon'];
+                    let dX = -400; // Start further back
+                    let dY = 50;
+
+                    if (frame < 150) {
+                        pX = GAME_WIDTH/2 - 40;
+                    } else if (frame >= 150 && frame < 300) {
+                        const progress = Math.min(1, (frame - 150) / 100);
+                        dX = -400 + progress * (GAME_WIDTH/2 + 200);
+                        dY = 50 + Math.sin(frame/10) * 30;
+                        if(frame > 200) ctx.translate(Math.random()*5, Math.random()*5);
+                    } else {
+                        const progress = (frame - 300) / 200;
+                        dX = (GAME_WIDTH/2 - 200) + progress * 1200;
+                        dY = 50 - progress * 300;
+                        pX = dX + 160; // Adjust for bigger dragon
+                        pY = dY + 120;
+                    }
+
+                    if (princess) ctx.drawImage(princess, pX, pY);
+                    if (dragon) {
+                        ctx.save();
+                        ctx.translate(dX, dY);
+                        ctx.scale(-1, 1); 
+                        ctx.drawImage(dragon, -400, 0); // Adjust draw offset
+                        
+                        // Fire breath
+                        if (frame > 200 && frame < 250) {
+                            ctx.fillStyle = '#F44336';
+                            ctx.beginPath();
+                            ctx.moveTo(-10, 120);
+                            ctx.lineTo(400, 80 + Math.random()*40);
+                            ctx.lineTo(400, 160 + Math.random()*40);
+                            ctx.fill();
+                        }
+                        ctx.restore();
+                    }
+
+                    if (frame > 250 && frame < 350) {
+                        ctx.fillStyle = '#FFF';
+                        ctx.strokeStyle = '#000';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath(); ctx.ellipse(pX + 100, pY - 50, 120, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                        ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center';
+                        ctx.fillText("Hoàng tử, cứu bé!", pX + 100, pY - 45);
+                    }
+
+                    ctx.setTransform(1, 0, 0, 1, 0, 0); 
+                };
+
+                const update = (dt) => {
+                    const eng = engine.current;
+                    const p = eng.player;
+
+                    if (eng.keys.left) { p.vx -= SPEED * dt; p.direction = -1; }
+                    if (eng.keys.right) { p.vx += SPEED * dt; p.direction = 1; }
+                    p.vx *= FRICTION;
+                    p.vx = Math.max(Math.min(p.vx, MAX_SPEED), -MAX_SPEED);
+                    p.vy += GRAVITY * dt;
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.frame += 0.2 * dt;
+
+                    if (eng.keys.up && p.onGround) {
+                        p.vy = -JUMP_POWER;
+                        p.onGround = false;
+                        playSound('jump');
+                        eng.keys.up = false;
+                    }
+
+                    if (p.y > GAME_HEIGHT + 200) resetPlayer();
+
+                    p.onGround = false;
+                    for (const plat of eng.platforms) {
+                        if (p.vy >= 0 && 
+                            p.x + p.width > plat.x + 5 && p.x < plat.x + plat.w - 5 &&
+                            p.y + p.height >= plat.y && p.y + p.height <= plat.y + 20) {
+                                p.y = plat.y - p.height;
+                                p.vy = 0;
+                                p.onGround = true;
+                        }
+                    }
+
+                    for (const enemy of eng.enemies) {
+                        if (enemy.dead) continue;
+                        enemy.x += enemy.vx * dt;
+                        if (enemy.x <= enemy.limitX[0]) { enemy.x = enemy.limitX[0] + 1; enemy.vx = Math.abs(enemy.vx); }
+                        else if (enemy.x >= enemy.limitX[1]) { enemy.x = enemy.limitX[1] - 1; enemy.vx = -Math.abs(enemy.vx); }
+
+                        const pLeft = p.x + 10;
+                        const pRight = p.x + p.width - 10;
+                        const pBottom = p.y + p.height;
+                        const pTop = p.y;
+                        
+                        const eLeft = enemy.x + 5;
+                        const eRight = enemy.x + enemy.w - 5;
+                        const eTop = enemy.y;
+                        const eBottom = enemy.y + enemy.h;
+
+                        if (pRight > eLeft && pLeft < eRight && pBottom > eTop && pTop < eBottom) {
+                                const isFalling = p.vy > 0;
+                                const isAbove = pBottom < enemy.y + (enemy.h * 0.5);
+                                
+                                if (isFalling && isAbove) {
+                                    const ex = enemy.x + enemy.w/2;
+                                    const ey = enemy.y + enemy.h/2;
+                                    enemy.dead = true; 
+                                    p.vy = -JUMP_POWER * 0.7; 
+                                    setScore(s => s + 30);
+                                    playSound('enemy');
+                                    createParticles(ex, ey, '#555');
+                                } else {
+                                    resetPlayer();
+                                }
+                        }
+                    }
+
+                    eng.coins.forEach(c => {
+                        if (!c.collected && 
+                            p.x < c.x + 30 && p.x + p.width > c.x &&
+                            p.y < c.y + 30 && p.y + p.height > c.y) {
+                                c.collected = true;
+                                setScore(s => s + 10);
+                                playSound('coin');
+                        }
+                    });
+
+                    if (p.x < eng.goal.x + eng.goal.w && p.x + p.width > eng.goal.x &&
+                        p.y < eng.goal.y + eng.goal.h && p.y + p.height > eng.goal.y) {
+                            setGameState('QUESTION');
+                            eng.running = false;
+                    }
+
+                    eng.camera.x += (p.x - GAME_WIDTH/2 - eng.camera.x) * 0.1 * dt;
+                    eng.camera.x = Math.max(0, eng.camera.x);
+
+                    eng.clouds.forEach(c => {
+                        c.x -= c.speed * dt;
+                        if (c.x < -200) c.x = eng.camera.x + GAME_WIDTH + 200;
+                    });
+
+                    eng.critters.forEach(c => {
+                        c.x += c.vx * dt;
+                        c.y += Math.sin(Date.now() / 200) * 2;
+                        if (c.x > eng.camera.x + GAME_WIDTH + 100) c.x = eng.camera.x - 100;
+                    });
+
+                    if (eng.weather.rain) {
+                        for(let i=0; i<3; i++) {
+                            eng.particles.push({
+                                x: eng.camera.x + Math.random() * GAME_WIDTH,
+                                y: -20,
+                                vx: -2, vy: 15 + Math.random() * 5,
+                                life: 40,
+                                color: eng.weather.storm ? '#B0BEC5' : '#4FC3F7'
+                            });
+                        }
+                    }
+                    if (eng.weather.storm && Math.random() > 0.99) eng.weather.flash = 1;
+                    if (eng.weather.flash > 0) eng.weather.flash -= 0.1 * dt;
+
+                    for (let i = eng.particles.length - 1; i >= 0; i--) {
+                        const part = eng.particles[i];
+                        part.x += part.vx * dt;
+                        part.y += part.vy * dt;
+                        part.life -= dt;
+                        if (part.life <= 0) eng.particles.splice(i, 1);
+                    }
+                };
+
+                const draw = () => {
+                    const canvas = canvasRef.current;
+                    if (!canvas) return;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return;
+                    const eng = engine.current;
+
+                    let bgColors = ["#4FC3F7", "#E1F5FE"];
+                    if (level === 2) bgColors = ['#546E7A', '#37474F'];
+                    if (level === 3) bgColors = ['#FF7043', '#3E2723'];
+                    if (level === 4) bgColors = ['#1A237E', '#000000'];
+                    if (level === 5) bgColors = ['#263238', '#000000'];
+
+                    if (eng.weather.flash > 0) {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${eng.weather.flash * 0.5})`;
+                        ctx.fillRect(0,0,GAME_WIDTH, GAME_HEIGHT);
+                    } else {
+                        const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+                        grd.addColorStop(0, bgColors[0]);
+                        grd.addColorStop(1, bgColors[1]);
+                        ctx.fillStyle = grd;
+                        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                    }
+
+                    ctx.save();
+                    ctx.translate(-eng.camera.x * 0.1, 0);
+                    if (eng.weather.sun) {
+                        const celestial = eng.weather.night ? assetCache['moon'] : assetCache['sun'];
+                        if (celestial) ctx.drawImage(celestial, eng.weather.sun.x, eng.weather.sun.y);
+                    }
+                    if (eng.weather.night) {
+                        ctx.fillStyle = '#FFF';
+                        for(let i=0; i<50; i++) {
+                            ctx.globalAlpha = 0.5 + Math.sin(Date.now()/1000 + i)*0.5;
+                            ctx.fillRect((i*137)%2000, (i*53)%600, 2, 2);
+                        }
+                        ctx.globalAlpha = 1;
+                    }
+                    ctx.restore();
+                    
+                    ctx.save();
+                    ctx.translate(-eng.camera.x * 0.3, 0);
+                    const mtn = assetCache['mountain'];
+                    if (mtn) {
+                        eng.mountains.forEach(m => {
+                            const xPos = m.x % (GAME_WIDTH * 2);
+                            ctx.drawImage(mtn, xPos, m.y, 400 * m.scale, 300 * m.scale);
+                            if (xPos < 0) ctx.drawImage(mtn, xPos + GAME_WIDTH * 2, m.y, 400 * m.scale, 300 * m.scale);
+                        });
+                    }
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.translate(-eng.camera.x, 0);
+
+                    eng.clouds.forEach(c => {
+                        const img = assetCache[c.type];
+                        if (img) ctx.drawImage(img, c.x, c.y, 200 * c.scale, 120 * c.scale);
+                    });
+
+                    const brick = assetCache['brick'];
+                    if (brick) {
+                        eng.platforms.forEach(p => {
+                            if (p.x + p.w < eng.camera.x || p.x > eng.camera.x + GAME_WIDTH) return;
+                            ctx.drawImage(brick, 0, 0, 100, 100, p.x, p.y, p.w, p.h);
+                        });
+                    }
+
+                    eng.decor.forEach(d => {
+                        const img = assetCache[d.type];
+                        if (img) {
+                            if (d.type === 'flask') ctx.drawImage(img, d.x, d.y - 60);
+                            else if (d.type === 'tree') ctx.drawImage(img, d.x, d.y - 140);
+                            else ctx.drawImage(img, d.x, d.y - (img.height * 0.8));
+                        }
+                    });
+
+                    const doorX = eng.goal.x;
+                    const doorY = eng.goal.y;
+                    const doorW = eng.goal.w;
+                    const doorH = eng.goal.h;
+                    ctx.fillStyle = '#3E2723'; ctx.fillRect(doorX, doorY, doorW, doorH);
+                    const doorGrad = ctx.createLinearGradient(doorX, doorY, doorX, doorY + doorH);
+                    doorGrad.addColorStop(0, '#795548'); doorGrad.addColorStop(1, '#4E342E');
+                    ctx.fillStyle = doorGrad; ctx.fillRect(doorX + 10, doorY + 10, doorW - 20, doorH - 10);
+                    const glow = 0.5 + Math.sin(Date.now() / 300) * 0.5;
+                    ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 15 * glow;
+                    ctx.fillStyle = '#FFD700'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
+                    ctx.fillText('CÂU HỎI', doorX + doorW/2, doorY + 50);
+                    ctx.fillText('THỬ THÁCH', doorX + doorW/2, doorY + 80);
+                    ctx.shadowBlur = 0;
+
+                    eng.enemies.forEach(e => {
+                        if (e.dead || e.x < eng.camera.x - 100 || e.x > eng.camera.x + GAME_WIDTH) return;
+                        const img = assetCache['enemy_' + e.type];
+                        if (img) ctx.drawImage(img, e.x, e.y, e.w, e.h);
+                    });
+
+                    eng.critters.forEach(c => {
+                        const img = assetCache[c.type];
+                        if (img) ctx.drawImage(img, c.x, c.y);
+                    });
+
+                    const coinImg = assetCache['coin'];
+                    if (coinImg) {
+                        eng.coins.forEach(c => {
+                            if (c.collected) return;
+                            if (c.x < eng.camera.x - 50 || c.x > eng.camera.x + GAME_WIDTH) return;
+                            const bob = Math.sin(Date.now() / 200) * 5;
+                            ctx.drawImage(coinImg, c.x, c.y + bob);
+                        });
+                    }
+
+                    drawPlayer(ctx, eng.player);
+
+                    eng.particles.forEach(part => {
+                        ctx.fillStyle = part.color;
+                        ctx.globalAlpha = part.life / 50;
+                        ctx.beginPath();
+                        if (eng.weather.rain) ctx.rect(part.x, part.y, 2, 15);
+                        else ctx.arc(part.x, part.y, 4, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1.0;
+                    });
+
+                    ctx.restore();
+                };
+
+                const drawPlayer = (ctx, p) => {
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    if (p.direction === -1) {
+                        ctx.translate(p.width, 0);
+                        ctx.scale(-1, 1);
+                    }
+
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.beginPath(); ctx.ellipse(p.width/2, p.height, 20, 5, 0, 0, Math.PI*2); ctx.fill();
+
+                    const { coat, hat, pants } = p.skinColor;
+                    const legOffset = Math.sin(p.frame) * 3;
+
+                    const hatGrad = ctx.createLinearGradient(5, 5, 45, 25);
+                    hatGrad.addColorStop(0, hat); hatGrad.addColorStop(1, darkenColor(hat, 0.3));
+                    ctx.fillStyle = hatGrad; ctx.fillRect(5, 5, 40, 20); ctx.fillRect(0, 20, 50, 15);
+                    ctx.fillStyle = 'rgba(225, 245, 254, 0.9)'; ctx.fillRect(10, 23, 30, 10);
+                    ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(10, 23, 30, 10);
+                    const coatGrad = ctx.createLinearGradient(5, 35, 45, 65);
+                    coatGrad.addColorStop(0, coat); coatGrad.addColorStop(1, darkenColor(coat, 0.2));
+                    ctx.fillStyle = coatGrad; ctx.fillRect(5, 35, 40, 30);
+                    ctx.fillStyle = coat; ctx.fillRect(20, 25, 10, 10);
+                    const faceGrad = ctx.createRadialGradient(25, 42, 0, 25, 42, 15);
+                    faceGrad.addColorStop(0, '#FFE4E1'); faceGrad.addColorStop(1, '#FFCDD2');
+                    ctx.fillStyle = faceGrad; ctx.fillRect(12, 35, 26, 15);
+                    ctx.fillStyle = '#000'; ctx.fillRect(17, 39, 3, 3); ctx.fillRect(30, 39, 3, 3);
+                    const pantsGrad = ctx.createLinearGradient(5, 65, 45, 80);
+                    pantsGrad.addColorStop(0, pants); pantsGrad.addColorStop(1, darkenColor(pants, 0.3));
+                    ctx.fillStyle = pantsGrad; ctx.fillRect(5, 65, 40, 15);
+                    ctx.fillStyle = '#5D4037';
+                    ctx.fillRect(5, 80 + legOffset, 15, 15); ctx.fillRect(30, 80 - legOffset, 15, 15);
+                    ctx.fillStyle = '#FFCDD2';
+                    const armOffset = Math.sin(p.frame + Math.PI) * 2;
+                    ctx.fillRect(2, 45 + armOffset, 8, 20); ctx.fillRect(40, 45 - armOffset, 8, 20);
+                    ctx.fillStyle = '#FFF';
+                    ctx.fillRect(2, 65 + armOffset, 8, 8); ctx.fillRect(40, 65 - armOffset, 8, 8);
+                    ctx.restore();
+                };
+
+                if (gameState === 'PLAYING' || gameState === 'INTRO_CINEMATIC' || gameState === 'OUTRO_CINEMATIC') {
+                    engine.current.running = true;
+                    engine.current.lastTime = performance.now();
+                    requestID = requestAnimationFrame(loop);
+                } else {
+                    engine.current.running = false;
+                }
+
+                return () => cancelAnimationFrame(requestID);
+            }, [gameState, level]);
+
+            useEffect(() => {
+                const handleKey = (e, down) => {
+                    if (e.code === 'ArrowLeft') engine.current.keys.left = down;
+                    if (e.code === 'ArrowRight') engine.current.keys.right = down;
+                    if (e.code === 'Space' || e.code === 'ArrowUp') engine.current.keys.up = down;
+                };
+                const kd = (e) => handleKey(e, true);
+                const ku = (e) => handleKey(e, false);
+                window.addEventListener('keydown', kd);
+                window.addEventListener('keyup', ku);
+                return () => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); };
+            }, []);
+
+            const handleTouch = (key, down) => (e) => {
                 e.preventDefault();
-            }
-        }, { passive: false });
+                engine.current.keys[key] = down;
+            };
 
-        // Xử lý thay đổi kích thước màn hình
-        window.addEventListener('resize', () => {
-            initCanvasSize();
-            checkOrientation();
-        });
+            const handleStartClick = () => {
+                engine.current.cinematicTime = 0;
+                setGameState('INTRO_CINEMATIC');
+            };
 
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                initCanvasSize();
-                checkOrientation();
-            }, 100);
-        });
+            const handleInstructionsDone = () => {
+                setGameState('TRANSITION');
+            };
 
-        // Xử lý fullscreen change
-        document.addEventListener('fullscreenchange', () => {
-            isFullscreen = !!document.fullscreenElement;
-            fullscreenToggle.textContent = isFullscreen ? '⛶' : '⛶';
-        });
+            const startLevel = () => {
+                initLevel(level);
+                setGameState('PLAYING');
+            };
 
-        // Đảm bảo nút bắt đầu có thể nhấn được trên mobile
-        startBtn.style.touchAction = 'manipulation';
-        startBtn.style.cursor = 'pointer';
+            const handleAnswer = () => {
+                if (selectedOption === null) return;
+                const qIndex = (level - 1) * 2 + questionsAnsweredInLevel;
+                const correct = QUESTIONS[qIndex].correct;
 
-        // Thêm sự kiện cho nút đăng nhập
-        loginBtn.style.touchAction = 'manipulation';
-        loginBtn.style.cursor = 'pointer';
+                if (selectedOption === correct) {
+                    setFeedback('correct');
+                    playSound('win');
+                    setScore(s => s + 50);
+                    setTimeout(() => {
+                        setFeedback(null);
+                        setSelectedOption(null);
+                        
+                        const newQAnswered = questionsAnsweredInLevel + 1;
+                        setQuestionsAnsweredInLevel(newQAnswered);
 
-        // Đảm bảo input có thể nhập được trên mobile
-        playerNameInput.style.touchAction = 'manipulation';
+                        if (newQAnswered >= 2) {
+                            if (level >= 5) {
+                                // START OUTRO INSTEAD OF END
+                                engine.current.cinematicTime = 0;
+                                setGameState('OUTRO_CINEMATIC');
+                            } else {
+                                setLevel(l => l + 1);
+                                setQuestionsAnsweredInLevel(0);
+                                setGameState('TRANSITION');
+                            }
+                        }
+                    }, 1000);
+                } else {
+                    setFeedback('wrong');
+                    playSound('lose');
+                    setTimeout(() => {
+                        setFeedback(null);
+                        setGameState('PLAYING');
+                        resetPlayer();
+                    }, 1500);
+                }
+            };
 
-        // Khởi tạo ban đầu
-        initCanvasSize();
-        checkOrientation();
+            const s = {
+                overlay: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#FFF', zIndex: 20 },
+                btn: { padding: '15px 40px', fontSize: '22px', background: 'linear-gradient(to bottom, #FF6347, #B22222)', border: 'none', borderRadius: '30px', color: 'white', marginTop: '20px', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', fontWeight: 'bold' },
+                textShadow: { textShadow: '2px 2px 4px rgba(0,0,0,0.8)' },
+                statusBar: { 
+                    position: 'absolute', top: 0, left: 0, width: '100%', height: '60px', 
+                    background: 'linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0))', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 30px',
+                    fontFamily: 'Segoe UI, sans-serif', fontWeight: 'bold', fontSize: '20px', color: '#FFF',
+                    zIndex: 10, boxSizing: 'border-box'
+                },
+                statusItem: { display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.15)', padding: '5px 15px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.3)' },
+                ctrlBtn: { width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', fontSize: '40px', userSelect: 'none', backdropFilter: 'blur(5px)' }
+            };
+
+            const currentQIndex = (level - 1) * 2 + questionsAnsweredInLevel;
+
+            return (
+                <div style={{ width: '100vw', height: '100vh', background: '#000', overflow: 'hidden', position: 'relative', touchAction: 'none' }}>
+                    <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    
+                    {gameState === 'PLAYING' && (
+                        <React.Fragment>
+                        <div style={s.statusBar}>
+                            <div style={s.statusItem}>👤 {playerName}</div>
+                            <div style={s.statusItem}>⭐ {score}</div>
+                            <div style={s.statusItem}>🚩 Màn {level}/5</div>
+                            <div style={{...s.statusItem, cursor: 'pointer'}} onClick={() => setSoundEnabled(!soundEnabled)}>
+                                {soundEnabled ? '🔊 Bật' : '🔇 Tắt'}
+                            </div>
+                        </div>
+                        
+                        <div style={{ position: 'absolute', bottom: 30, left: 30, display: 'flex', gap: 20, zIndex: 10 }}>
+                            <div style={s.ctrlBtn} onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)}>←</div>
+                            <div style={s.ctrlBtn} onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)}>→</div>
+                        </div>
+                        <div style={{ position: 'absolute', bottom: 30, right: 30, zIndex: 10 }}>
+                            <div style={{ ...s.ctrlBtn, background: 'rgba(255,99,71,0.4)' }} onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)}>↑</div>
+                        </div>
+                        </React.Fragment>
+                    )}
+
+                    {gameState === 'START' && (
+                        <div style={{...s.overlay, background: 'rgba(0,0,0,0.4)'}}>
+                            <div style={{position: 'absolute', top:0, left:0, width:'100%', height:'100%', zIndex:-1}}>
+                                <canvas ref={titleRef} width={1600} height={900} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                            </div>
+                            <h1 style={{ fontFamily: "'Ruslan Display', cursive", fontSize: '5rem', color: '#FFD700', textShadow: '4px 4px 0px #B71C1C, 6px 6px 10px black', textAlign: 'center', letterSpacing: '2px', textTransform: 'uppercase' }}>MARIO<br/>DŨNG SĨ HÓA HỌC</h1>
+                            <div style={{ background: 'rgba(0,0,0,0.6)', padding: '30px', borderRadius: '15px', backdropFilter: 'blur(10px)', border: '2px solid #FFD700', boxShadow: '0 0 20px rgba(255, 215, 0, 0.3)' }}>
+                                <input 
+                                    type="text" 
+                                    value={playerName} 
+                                    onFocus={() => { if(playerName === "Người chơi") setPlayerName("") }}
+                                    onChange={e => setPlayerName(e.target.value)} 
+                                    style={{ fontSize: '1.5rem', padding: '10px', textAlign: 'center', borderRadius: '10px', border: '1px solid #AAA', width: '300px', background: 'rgba(255,255,255,0.9)', color: '#333' }} 
+                                    maxLength={12} 
+                                />
+                            </div>
+                            <button style={s.btn} onClick={handleStartClick}>BẮT ĐẦU</button>
+                            <p style={{ marginTop: '20px', fontSize: '1.2rem', fontWeight: 'bold', textShadow: '2px 2px 2px black' }}>Nhập tên và nhấn Bắt Đầu</p>
+                        </div>
+                    )}
+
+                    {gameState === 'INSTRUCTIONS' && (
+                        <div style={s.overlay}>
+                            <div style={{ background: 'rgba(0,0,0,0.9)', padding: '40px', borderRadius: '20px', maxWidth: '800px', border: '2px solid #FFD700', textAlign: 'center', animation: 'fadeIn 0.5s', maxHeight: '90vh', overflowY: 'auto' }}>
+                                <h2 style={{color: '#FFD700', fontSize: '2.5rem', marginBottom: '20px'}}>CỐT TRUYỆN & HƯỚNG DẪN</h2>
+                                
+                                <div style={{textAlign: 'left', marginBottom: '30px', background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '10px'}}>
+                                    <h3 style={{color: '#4CAF50', marginTop: 0}}>📖 Cốt Truyện</h3>
+                                    <p style={{lineHeight: '1.6', fontSize: '1.1rem'}}>
+                                        Công chúa Peach đã bị Rồng Hóa Học bắt cóc và giam giữ tại Lâu Đài Nguyên Tử. 
+                                        Mario phải vượt qua 5 vùng đất thí nghiệm nguy hiểm, từ phòng lab cơ bản đến vùng bão tố điện tích.
+                                        Trên đường đi, bạn cần thu thập kiến thức hóa học để mở khóa các cánh cửa bí ẩn và giải cứu công chúa!
+                                    </p>
+                                </div>
+
+                                <div style={{display: 'flex', justifyContent: 'space-around', margin: '30px 0', borderTop: '1px solid #555', paddingTop: '20px'}}>
+                                    <div style={{textAlign: 'center'}}>
+                                        <div style={{fontSize: '40px', marginBottom: '10px'}}>⬅️ ➡️</div>
+                                        <div style={{fontWeight: 'bold', color: '#87CEEB'}}>DI CHUYỂN</div>
+                                        <div style={{fontSize: '0.9rem', color: '#AAA'}}>Dùng phím mũi tên hoặc nút cảm ứng</div>
+                                    </div>
+                                    <div style={{textAlign: 'center'}}>
+                                        <div style={{fontSize: '40px', marginBottom: '10px'}}>⬆️</div>
+                                        <div style={{fontWeight: 'bold', color: '#FF6347'}}>NHẢY / GIẪM QUÁI</div>
+                                        <div style={{fontSize: '0.9rem', color: '#AAA'}}>Space hoặc Mũi tên lên</div>
+                                    </div>
+                                </div>
+
+                                <button style={s.btn} onClick={handleInstructionsDone}>ĐÃ HIỂU, LÊN ĐƯỜNG!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {gameState === 'TRANSITION' && (
+                        <div style={s.overlay}>
+                            <h1 style={{ fontSize: '3rem', color: '#FFD700', ...s.textShadow }}>{STORY_TEXTS[level-1].title}</h1>
+                            <p style={{ fontSize: '1.5rem', maxWidth: '600px', textAlign: 'center', lineHeight: '1.6', background: 'rgba(0,0,0,0.5)', padding: '20px', borderRadius: '10px' }}>{STORY_TEXTS[level-1].text}</p>
+                            <button style={s.btn} onClick={startLevel}>TIẾP TỤC</button>
+                        </div>
+                    )}
+
+                    {gameState === 'QUESTION' && (
+                        <div style={s.overlay}>
+                            <div style={{ background: 'rgba(0,0,0,0.95)', padding: '40px', borderRadius: '20px', width: '80%', maxWidth: '900px', border: '2px solid #FFD700', boxShadow: '0 0 30px rgba(255, 215, 0, 0.2)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid #555', paddingBottom: '10px' }}>
+                                    <h2 style={{ color: '#FFD700', margin: 0 }}>Thử Thách Hóa Học</h2>
+                                    <span style={{ color: '#AAA' }}>Câu {questionsAnsweredInLevel + 1}/2</span>
+                                </div>
+                                <p style={{ fontSize: '1.5rem', lineHeight: '1.5', margin: '30px 0', fontWeight: 'bold' }}>{QUESTIONS[currentQIndex].text}</p>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                    {QUESTIONS[currentQIndex].options.map((opt, idx) => (
+                                        <div key={idx} 
+                                            onClick={() => !feedback && setSelectedOption(idx)}
+                                            style={{ 
+                                                padding: '20px', background: selectedOption === idx ? '#444' : '#222', 
+                                                border: feedback === 'correct' && idx === QUESTIONS[currentQIndex].correct ? '2px solid #4CAF50' : 
+                                                        feedback === 'wrong' && idx === selectedOption ? '2px solid #F44336' : 
+                                                        selectedOption === idx ? '2px solid #FFD700' : '2px solid #444',
+                                                borderRadius: '10px', cursor: 'pointer', transition: 'all 0.2s', fontSize: '1.1rem',
+                                                display: 'flex', alignItems: 'center'
+                                            }}>
+                                            {opt}
+                                        </div>
+                                    ))}
+                                </div>
+                                {!feedback ? (
+                                    <button style={{ ...s.btn, width: '100%', marginTop: '30px' }} onClick={handleAnswer}>TRẢ LỜI</button>
+                                ) : (
+                                    <div style={{ textAlign: 'center', marginTop: '20px', padding: '15px', borderRadius: '10px', background: feedback === 'correct' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)', color: feedback === 'correct' ? '#4CAF50' : '#F44336', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                        {feedback === 'correct' ? 'CHÍNH XÁC! (+50 điểm)' : 'SAI RỒI! Quay lại điểm xuất phát.'}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {gameState === 'END' && (
+                        <div style={s.overlay}>
+                            <h1 style={{ fontSize: '5rem', color: '#FFD700', ...s.textShadow, marginBottom: '20px' }}>CHIẾN THẮNG!</h1>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '40px', borderRadius: '20px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                                <p style={{ fontSize: '2rem', margin: '10px 0' }}>Chúc mừng <b>{playerName}</b></p>
+                                <p style={{ fontSize: '1.5rem' }}>Bạn đã giải cứu công chúa Peach!</p>
+                                <div style={{ fontSize: '3rem', color: '#4CAF50', margin: '30px 0', fontWeight: 'bold' }}>{score} ĐIỂM</div>
+                            </div>
+                            <button style={s.btn} onClick={() => {
+                                setLevel(1);
+                                setScore(0);
+                                setQuestionsAnsweredInLevel(0);
+                                setGameState('START'); 
+                            }}>CHƠI LẠI</button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<Game />);
     </script>
 </body>
 </html>
