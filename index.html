@@ -3,55 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Mario Dũng Sĩ Hóa Học</title>
+    <title>Mario: Dũng Sĩ Hóa Học</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React & ReactDOM -->
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Coiny&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM (UMD) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel for JSX -->
+    
+    <!-- Babel Standalone (for JSX/TypeScript) -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Coiny&family=Calibri:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         body {
+            background-color: #000;
             margin: 0;
             padding: 0;
-            background-color: #000;
-            overflow: hidden; 
-            touch-action: none; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
             user-select: none;
             -webkit-user-select: none;
         }
         #root {
             width: 100vw;
             height: 100dvh;
-            background-color: #111;
         }
         
-        /* Custom scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 8px; }
-        .custom-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 4px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .animate-pop { animation: fadeIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #FBBF24; border-radius: 4px; }
         
-        /* Safe area support */
-        .pt-safe-top { padding-top: env(safe-area-inset-top); }
-        .pl-safe-left { padding-left: env(safe-area-inset-left); }
-        .pr-safe-right { padding-right: env(safe-area-inset-right); }
-        .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        /* Animations */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-heartbeat { animation: heartbeat 1.5s infinite ease-in-out; }
     </style>
 <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "vite": "https://aistudiocdn.com/vite@^7.2.4",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
 </script>
@@ -59,7 +56,7 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="env,react,typescript">
         const { useState, useEffect, useRef, useCallback } = React;
         const { createRoot } = ReactDOM;
 
@@ -72,89 +69,213 @@
         const MAX_SPEED = 12;
         const FRICTION = 0.82;
 
-        const QUESTIONS = [
-            { text: "Từ một miếng đá vôi và một lọ đựng dd HCl 1M, thí nghiệm được tiến hành trong điều kiện nào sau đây sẽ thu được lượng CO₂ lớn nhất trong một khoảng thời gian xác định?", options: ["A. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, không đun nóng.", "B. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, đun nóng.", "C. Cho miếng đá vôi vào dung dịch HCl 1M, không đun nóng.", "D. Cho miếng đá vôi vào dung dịch HCl 1M, đun nóng."], correct: 1 },
-            { text: "Cho phản ứng hóa học sau: C (s) + O2 (g) → CO2 (g). Yếu tố nào sau đây không ảnh hưởng đến tốc độ phản ứng trên?", options: ["A. Nhiệt độ", "B. Áp suất O2", "C. Hàm lượng carbon", "D. Diện tích bề mặt carbon"], correct: 2 },
-            { text: "Dưới đây là một số hiện tượng xảy ra trong đời sống, hãy sắp xếp theo thứ tự tốc độ phản ứng giảm dần: (1) Phản ứng cháy của xăng, dầu. (2) Các thanh thép ở các công trường xây dựng bị oxi hóa bởi các tác nhân trong không khí. (3) Phản ứng lên men rượu từ trái cây. (4) Nướng bánh mì.", options: ["A. 1 > 4 > 3 > 2", "B. 1 > 4 > 2 > 3", "C. 4 > 1 > 2 > 3", "D. 1 > 3 > 4 > 2"], correct: 0 },
-            { text: "Trong phòng thí nghiệm, có thể điều chế khí oxygen từ muối potassium chlorate (KClO₃). Người ta sử dụng cách nào sau đây nhằm mục đích tăng tốc độ phản ứng?", options: ["A. Nung potassium chorate ở nhiệt độ cao.", "B. Nung hỗn hợp potassium chorate và manganese dioxide ở nhiệt độ cao", "C. Dùng phương pháp dời nước để thu khí oxygen.", "D. Dùng phương pháp dời không khí để thu được khí oxygen."], correct: 1 },
-            { text: "Cho ba mẫu đá vôi (100% CaCO₃) có cùng khối lượng: mẫu 1 dạng khối, mẫu 2 dạng viên nhỏ, mẫu 3 dạng bột mịn vào ba cốc dựng cùng thể tích dung dịch HCI (dư, cùng nồng độ, ở điều kiện thường). Thời gian để đá vôi tan hết trong ba cốc tương ứng là t₁, t₂, t₃ giây. So sánh nào sau đây đúng?", options: ["A. t₃ < t₂ < t₁", "B. t₁ < t₂ < t₃", "C. t₁ = t₂ = t₃", "D. t₂ < t₁ < t₃"], correct: 0 },
-            { text: "Sự thay đổi nào dưới đây không làm tăng tốc độ phản ứng xảy ra giữa dây magnesium và dung dịch hydrochloric acid?", options: ["A. Cuộn dải magnesium thành một quả bóng nhỏ.", "B. Nghiền mảnh magnesium thành bột.", "C. Tăng nồng độ của hydrochloric acid.", "D. Tăng nhiệt độ của hydrochloric acid."], correct: 0 },
-            { text: "Một phản ứng hóá học được biểu diễn như sau: Các chất phản ứng - Các sản phẩm. Yếu tố nào sau đây không ảnh hướng đến tốc độ phản ứng?", options: ["A. Chất xúc tác.", "B. Nồng độ các chất phản ứng.", "C. Nồng độ các sản phẩm.", "D. Nhiệt độ."], correct: 2 },
-            { text: "Thực phẩm bị ôi thiu do các phản ứng oxi hóa của oxygen cũng như sự hoạt động của vi khuẩn. Biết rằng nồng độ oxygen trong túi thực phẩm sau khi bơm N₂ hoặc CO₂ chỉ còn khoảng 2 - 5%. Để hạn chế sự ôi thiu, người ta lại bơm N₂ hoặc CO₂ vào túi đựng thực phẩm trước khi đóng gói vì:", options: ["A. Giảm nồng độ oxygen trong túi.", "B. Giảm tốc độ phản ứng oxi hóa của oxygen.", "C. Hạn chế sự ôi thiu thực phẩm.", "D. Tất cả đều đúng."], correct: 3 },
-            { text: "Cách nào sau đây sẽ làm củ khoai tây chín nhanh nhất?", options: ["A. Luộc trong nước sôi.", "B. Hấp cách thủy trong nồi cơm.", "C. Nướng ở 180°C.", "D. Hấp trên nồi hơi."], correct: 2 },
-            { text: "Cho một viên đá vôi nặng 1 gam vào dung dịch HCl 2 M, ở nhiệt độ 25°C. Biến đổi nào sau đây không làm bọt khí thoát ra mạnh hơn?", options: ["A. Tăng thể tích dung dịch HCl lên gấp đôi.", "B. Thay viên đá vôi bằng 1 gam bột đá vôi.", "C. Thay dung dịch HCl 2 M bằng dung dịch HCl 4 M.", "D. Tăng nhiệt độ lên 50°C."], correct: 0 }
+        type QuestionType = 'mcq' | 'tf';
+
+        interface Question {
+            type: QuestionType;
+            text: string;
+            options?: string[]; // For MCQ
+            items?: string[]; // For TF
+            correct: number | boolean[]; // Index for MCQ, Array of bools for TF
+        }
+
+        // CẤU TRÚC CÂU HỎI MỚI THEO LEVEL
+        const LEVEL_QUESTS: Question[][] = [
+            // LEVEL 1 (2 MCQ)
+            [
+                { type: 'mcq', text: "Từ một miếng đá vôi và một lọ đựng dd HCl 1M, thí nghiệm được tiến hành trong điều kiện nào sau đây sẽ thu được lượng CO₂ lớn nhất trong một khoảng thời gian xác định?", options: ["A. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, không đun nóng.", "B. Tán nhỏ miếng đá vôi, cho vào dung dịch HCl 1M, đun nóng.", "C. Cho miếng đá vôi vào dung dịch HCl 1M, không đun nóng.", "D. Cho miếng đá vôi vào dung dịch HCl 1M, đun nóng."], correct: 1 },
+                { type: 'mcq', text: "Cho phản ứng hóa học sau: C (s) + O2 (g) → CO2 (g). Yếu tố nào sau đây không ảnh hưởng đến tốc độ phản ứng trên?", options: ["A. Nhiệt độ", "B. Áp suất O2", "C. Hàm lượng carbon", "D. Diện tích bề mặt carbon"], correct: 2 }
+            ],
+            // LEVEL 2 (2 MCQ)
+            [
+                { type: 'mcq', text: "Dưới đây là một số hiện tượng xảy ra trong đời sống, hãy sắp xếp theo thứ tự tốc độ phản ứng giảm dần: (1) Phản ứng cháy của xăng, dầu. (2) Các thanh thép ở các công trường xây dựng bị oxi hóa bởi các tác nhân trong không khí. (3) Phản ứng lên men rượu từ trái cây. (4) Nướng bánh mì.", options: ["A. 1 > 4 > 3 > 2", "B. 1 > 4 > 2 > 3", "C. 4 > 1 > 2 > 3", "D. 1 > 3 > 4 > 2"], correct: 0 },
+                { type: 'mcq', text: "Trong phòng thí nghiệm, có thể điều chế khí oxygen từ muối potassium chlorate (KClO₃). Người ta sử dụng cách nào sau đây nhằm mục đích tăng tốc độ phản ứng?", options: ["A. Nung potassium chorate ở nhiệt độ cao.", "B. Nung hỗn hợp potassium chorate và manganese dioxide ở nhiệt độ cao", "C. Dùng phương pháp dời nước để thu khí oxygen.", "D. Dùng phương pháp dời không khí để thu được khí oxygen."], correct: 1 }
+            ],
+            // LEVEL 3 (2 MCQ)
+            [
+                { type: 'mcq', text: "Cho ba mẫu đá vôi (100% CaCO₃) có cùng khối lượng: mẫu 1 dạng khối, mẫu 2 dạng viên nhỏ, mẫu 3 dạng bột mịn vào ba cốc dựng cùng thể tích dung dịch HCI (dư, cùng nồng độ, ở điều kiện thường). Thời gian để đá vôi tan hết trong ba cốc tương ứng là t₁, t₂, t₃ giây. So sánh nào sau đây đúng?", options: ["A. t₃ < t₂ < t₁", "B. t₁ < t₂ < t₃", "C. t₁ = t₂ = t₃", "D. t₂ < t₁ < t₃"], correct: 0 },
+                { type: 'mcq', text: "Sự thay đổi nào dưới đây không làm tăng tốc độ phản ứng xảy ra giữa dây magnesium và dung dịch hydrochloric acid?", options: ["A. Cuộn dải magnesium thành một quả bóng nhỏ.", "B. Nghiền mảnh magnesium thành bột.", "C. Tăng nồng độ của hydrochloric acid.", "D. Tăng nhiệt độ của hydrochloric acid."], correct: 0 }
+            ],
+            // LEVEL 4 (2 MCQ + 1 TF)
+            [
+                { type: 'mcq', text: "Một phản ứng hóá học được biểu diễn như sau: Các chất phản ứng - Các sản phẩm. Yếu tố nào sau đây không ảnh hướng đến tốc độ phản ứng?", options: ["A. Chất xúc tác.", "B. Nồng độ các chất phản ứng.", "C. Nồng độ các sản phẩm.", "D. Nhiệt độ."], correct: 2 },
+                { type: 'mcq', text: "Thực phẩm bị ôi thiu do các phản ứng oxi hóa của oxygen cũng như sự hoạt động của vi khuẩn. Biết rằng nồng độ oxygen trong túi thực phẩm sau khi bơm N₂ hoặc CO₂ chỉ còn khoảng 2 - 5%. Để hạn chế sự ôi thiu, người ta lại bơm N₂ hoặc CO₂ vào túi đựng thực phẩm trước khi đóng gói vì:", options: ["A. Giảm nồng độ oxygen trong túi.", "B. Giảm tốc độ phản ứng oxi hóa của oxygen.", "C. Hạn chế sự ôi thiu thực phẩm.", "D. Tất cả đều đúng."], correct: 3 },
+                { 
+                    type: 'tf', 
+                    text: "Cho a g kim loại Zn dạng hạt vào lượng dư dung dịch HCl 2M:\nZn(s) + 2HCl(aq) → ZnCl2(aq) + H2(g)\nChọn ĐÚNG hoặc SAI cho các phát biểu sau:", 
+                    items: [
+                        "a. Thay a g Zn hạt bằng a g bột Zn làm giảm diện tích tiếp xúc của chất phản ứng.",
+                        "b. Thay a g Zn hạt bằng a g bột Zn làm tốc độ khí H2 thoát ra nhanh hơn.",
+                        "c. Thay dung dịch HCl 2M bằng dung dịch HCl 1M làm tốc độ khí H2 thoát ra chậm hơn.",
+                        "d. Thực hiện phản ứng bằng cách đun nóng nhẹ dung dịch HCl làm tốc độ khí H2 thoát ra nhanh hơn."
+                    ],
+                    correct: [false, true, false, true] // Sai, Đúng, Sai, Đúng
+                }
+            ],
+            // LEVEL 5 (2 MCQ + 1 TF)
+            [
+                { type: 'mcq', text: "Cách nào sau đây sẽ làm củ khoai tây chín nhanh nhất?", options: ["A. Luộc trong nước sôi.", "B. Hấp cách thủy trong nồi cơm.", "C. Nướng ở 180°C.", "D. Hấp trên nồi hơi."], correct: 2 },
+                { type: 'mcq', text: "Cho một viên đá vôi nặng 1 gam vào dung dịch HCl 2 M, ở nhiệt độ 25°C. Biến đổi nào sau đây không làm bọt khí thoát ra mạnh hơn?", options: ["A. Tăng thể tích dung dịch HCl lên gấp đôi.", "B. Thay viên đá vôi bằng 1 gam bột đá vôi.", "C. Thay dung dịch HCl 2 M bằng dung dịch HCl 4 M.", "D. Tăng nhiệt độ lên 50°C."], correct: 0 },
+                {
+                    type: 'tf',
+                    text: "Xét các phản ứng xảy ra trong bình kín:\n(1) 2CO(g) + O2(g) → 2CO2(g)\n(2) NH4Cl(s) → NH3(g) + HCl(g)\nChọn ĐÚNG hoặc SAI cho các phát biểu sau:",
+                    items: [
+                        "a. Yếu tố áp suất ảnh hưởng đến tốc độ của phản ứng (1).",
+                        "b. Yếu tố áp suất làm giảm tốc độ của phản ứng (1).",
+                        "c. Yếu tố áp suất không ảnh hưởng đến tốc độ của phản ứng (2).",
+                        "d. Yếu tố áp suất làm tăng tốc độ của phản ứng (2)."
+                    ],
+                    correct: [true, false, true, false] // Đúng, Sai, Đúng, Sai
+                }
+            ]
         ];
 
         const STORY_TEXTS = [
-            { title: "Màn 1: Phòng thí nghiệm cơ bản", text: "Mario bắt đầu hành trình trong phòng thí nghiệm cơ bản. Ở đây, anh học về các phản ứng hóa học đơn giản và tốc độ phản ứng." },
-            { title: "Màn 2: Phòng thí nghiệm mưa acid", text: "Mario tiến vào khu vực bị ô nhiễm mưa acid. Anh phải cẩn thận với các cơn mưa độc hại và quái vật biến dị." },
-            { title: "Màn 3: Phòng thí nghiệm hoàng hôn", text: "Trời đã về chiều. Trong ánh hoàng hôn, Mario khám phá về nhiệt độ và chất xúc tác ảnh hưởng đến phản ứng." },
-            { title: "Màn 4: Phòng thí nghiệm đêm", text: "Bóng tối bao trùm. Mario bước vào khu vực bí ẩn về đêm. Hãy cẩn thận với những bóng ma!" },
-            { title: "Màn 5: ĐẠI CHIẾN RỒNG HÓA HỌC", text: "Hướng dẫn tiêu diệt Boss: \n1. Bắn đạn hoặc nhảy lên đầu Rồng để gây sát thương.\n2. Khi Rồng mất 50% máu, hãy trả lời đúng 2 câu hỏi hóa học để kết liễu nó!\nLưu ý: Nếu trả lời sai, bạn sẽ phải chiến đấu lại hoặc chịu hình phạt nặng nề. Chúc may mắn!" }
+            { title: "Màn 1: Phòng thí nghiệm nhập môn", text: "Vương quốc Hóa Học đang lâm nguy! Rồng Hóa Học đã trỗi dậy. Mario bắt đầu hành trình tại khu vực cơ bản. Hãy khởi động thật tốt!" },
+            { title: "Màn 2: Rừng mưa acid", text: "Mario tiến vào khu rừng rậm rạp, nơi những cơn mưa Acid (H₂SO₄ loãng) ăn mòn mọi thứ. Môi trường khắc nghiệt khiến quái vật trở nên hung hãn." },
+            { title: "Màn 3: Đồi nhiệt độ cao", text: "Nhiệt độ ở đây cực cao, làm tăng tốc độ phản ứng của kẻ thù. Quái vật di chuyển nhanh hơn gấp đôi! Hãy phản xạ thật nhanh!" },
+            { title: "Màn 4: Thung lũng bóng đêm", text: "Màn đêm buông xuống. Chỉ những bóng ma (Ghost) mới tồn tại được ở đây. Chúng thoắt ẩn thoắt hiện. Hãy cẩn thận với câu hỏi Đúng/Sai thử thách trí tuệ!" },
+            { title: "Màn 5: Đại chiến Rồng Hóa Học", text: "Cuối cùng, Mario đã đến Lâu đài! Rồng khổng lồ đang chờ đợi.\n\nCHIẾN THUẬT BOSS:\n1. Giai đoạn 1 (50% HP): Trả lời 2 câu hỏi. Cần đúng cả 2 để làm Rồng suy yếu (còn 40% HP).\n2. Giai đoạn 2 (30% HP): Trả lời câu hỏi quyết định. Đúng sẽ tiêu diệt Rồng, sai sẽ phải đánh lại từ đầu!" }
         ];
 
         // --- 2. ASSETS SERVICE ---
         const assetCache = {};
         const createOffscreenCanvas = (width, height, drawFn) => {
-            const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d'); if (ctx) drawFn(ctx); return canvas;
+            const canvas = document.createElement('canvas'); 
+            canvas.width = width; 
+            canvas.height = height;
+            const ctx = canvas.getContext('2d'); 
+            if (ctx) drawFn(ctx); 
+            return canvas;
         };
 
         const darkenColor = (color, percent) => {
-            const num = parseInt(color.replace("#", ""), 16),
-                amt = Math.round(2.55 * percent * 100),
-                R = (num >> 16) - amt, G = (num >> 8 & 0x00FF) - amt, B = (num & 0x0000FF) - amt;
+            let hex = color.replace("#", "");
+            if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+            }
+            
+            const num = parseInt(hex, 16);
+            const amt = Math.round(2.55 * percent * 100);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+
             return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
         };
 
         const initAssets = () => {
-            if (assetCache['brick']) return; // Already initialized
+            if (assetCache['brick']) return; 
 
             // 1. Platform
             assetCache['brick'] = createOffscreenCanvas(100, 100, (ctx) => {
-                const grad = ctx.createLinearGradient(0, 0, 0, 100); grad.addColorStop(0, '#795548'); grad.addColorStop(1, '#3E2723');
-                ctx.fillStyle = grad; ctx.fillRect(0, 0, 100, 100); ctx.fillStyle = 'rgba(0,0,0,0.15)';
-                ctx.beginPath(); ctx.arc(20, 40, 5, 0, Math.PI*2); ctx.arc(70, 70, 8, 0, Math.PI*2); ctx.arc(40, 80, 4, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#4CAF50'; ctx.fillRect(0, 0, 100, 15); ctx.fillStyle = '#81C784'; ctx.fillRect(0, 0, 100, 5);
-                ctx.fillStyle = '#2E7D32'; ctx.beginPath(); for(let i=0; i<20; i++) { ctx.moveTo(i*5, 15); ctx.lineTo(i*5+2.5, 25); ctx.lineTo(i*5+5, 15); } ctx.fill();
+                const grad = ctx.createLinearGradient(0, 0, 100, 100); grad.addColorStop(0, '#5D4037'); grad.addColorStop(1, '#3E2723'); 
+                ctx.fillStyle = grad; ctx.fillRect(0, 0, 100, 100); 
+                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(20, 40, 5, 0, Math.PI*2); ctx.arc(70, 70, 8, 0, Math.PI*2); ctx.arc(40, 80, 4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#43A047'; ctx.fillRect(0, 0, 100, 20); 
+                ctx.fillStyle = '#2E7D32'; ctx.beginPath(); for(let i=0; i<20; i++) { ctx.moveTo(i*5, 20); ctx.lineTo(i*5+2.5, 30); ctx.lineTo(i*5+5, 20); } ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.1)'; ctx.fillRect(0,0,100,5);
             });
 
             // 2. Celestials
-            assetCache['sun'] = createOffscreenCanvas(120, 120, ctx => { const grd = ctx.createRadialGradient(60,60,10, 60,60,60); grd.addColorStop(0, '#FFF'); grd.addColorStop(0.2, '#FFEB3B'); grd.addColorStop(1, 'rgba(255, 193, 7, 0)'); ctx.fillStyle = grd; ctx.fillRect(0,0,120,120); });
-            assetCache['moon'] = createOffscreenCanvas(100, 100, ctx => { ctx.fillStyle = '#FEFCD7'; ctx.beginPath(); ctx.arc(50,50,40,0,Math.PI*2); ctx.fill(); ctx.shadowColor = '#FFF'; ctx.shadowBlur = 15; ctx.fill(); });
-
-            // 3. Mountain
-            assetCache['mountain'] = createOffscreenCanvas(400, 300, ctx => { const grad = ctx.createLinearGradient(0, 0, 0, 300); grad.addColorStop(0, '#757575'); grad.addColorStop(1, '#424242'); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0, 300); ctx.lineTo(200, 50); ctx.lineTo(400, 300); ctx.fill(); ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.moveTo(150, 112); ctx.lineTo(200, 50); ctx.lineTo(250, 112); ctx.lineTo(225, 90); ctx.lineTo(200, 110); ctx.lineTo(175, 90); ctx.fill(); });
-
-            // 4. Castle
-            assetCache['castle'] = createOffscreenCanvas(300, 400, ctx => { ctx.fillStyle = '#9E9E9E'; ctx.fillRect(100, 100, 100, 300); ctx.fillRect(20, 200, 60, 200); ctx.fillRect(220, 200, 60, 200); ctx.fillStyle = '#3F51B5'; ctx.beginPath(); ctx.moveTo(100, 100); ctx.lineTo(150, 20); ctx.lineTo(200, 100); ctx.fill(); ctx.beginPath(); ctx.moveTo(20, 200); ctx.lineTo(50, 150); ctx.lineTo(80, 200); ctx.fill(); ctx.beginPath(); ctx.moveTo(220, 200); ctx.lineTo(250, 150); ctx.lineTo(280, 200); ctx.fill(); ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.arc(150, 400, 40, Math.PI, 0); ctx.fill(); ctx.fillStyle = '#424242'; ctx.fillRect(130, 150, 40, 60); ctx.fillRect(40, 250, 20, 40); ctx.fillRect(240, 250, 20, 40); });
-
-            // 5. Dragon
-            assetCache['dragon'] = createOffscreenCanvas(400, 300, ctx => { ctx.scale(2, 2); const bodyGrad = ctx.createLinearGradient(0, 0, 0, 100); bodyGrad.addColorStop(0, '#1B5E20'); bodyGrad.addColorStop(1, '#000'); ctx.fillStyle = bodyGrad; ctx.beginPath(); ctx.ellipse(100, 80, 60, 35, 0, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.moveTo(40, 80); ctx.quadraticCurveTo(-20, 80, 10, 130); ctx.lineTo(30, 90); ctx.fill(); ctx.fillStyle = '#000'; for(let i=0; i<5; i++) { ctx.beginPath(); ctx.moveTo(50 + i*20, 50); ctx.lineTo(60 + i*20, 30); ctx.lineTo(70+i*20, 55); ctx.fill(); } ctx.fillStyle = '#2E7D32'; ctx.beginPath(); ctx.moveTo(150, 70); ctx.quadraticCurveTo(190, 40, 200, 50); ctx.lineTo(170, 90); ctx.fill(); ctx.fillStyle = '#B71C1C'; ctx.beginPath(); ctx.moveTo(110, 60); ctx.lineTo(190, -10); ctx.lineTo(150, 80); ctx.fill(); ctx.beginPath(); ctx.moveTo(90, 60); ctx.lineTo(40, -10); ctx.lineTo(60, 80); ctx.fill(); ctx.fillStyle = '#FF0000'; ctx.beginPath(); ctx.arc(185, 55, 4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFFF00'; ctx.beginPath(); ctx.arc(185, 55, 1.5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = 'rgba(50,50,50,0.5)'; ctx.beginPath(); ctx.arc(205, 60, 5, 0, Math.PI*2); ctx.fill(); });
-
-            // 6. Title Art (Optimized for drawing directly)
-            assetCache['title_art'] = createOffscreenCanvas(1600, 900, ctx => { 
-                // Sky
-                const sky = ctx.createLinearGradient(0, 0, 0, 900); sky.addColorStop(0, '#1a237e'); sky.addColorStop(0.5, '#b71c1c'); sky.addColorStop(1, '#ff5722'); ctx.fillStyle = sky; ctx.fillRect(0, 0, 1600, 900); 
-                // Terrain
-                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(0, 900); ctx.lineTo(400, 600); ctx.lineTo(800, 800); ctx.lineTo(1200, 600); ctx.lineTo(1600, 900); ctx.fill(); 
-                // Dragon
-                ctx.save(); ctx.translate(1100, 300); ctx.scale(3, 3); const dGrad = ctx.createLinearGradient(0,0,0,100); dGrad.addColorStop(0, '#2E7D32'); dGrad.addColorStop(1, '#000'); ctx.fillStyle = dGrad; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(50, -20, 80, 20); ctx.lineTo(60, 50); ctx.quadraticCurveTo(20, 80, 0, 100); ctx.lineTo(-20, 50); ctx.fill(); ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.arc(30, 15, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.arc(30, 15, 2, 0, Math.PI*2); ctx.fill(); const fire = ctx.createLinearGradient(80, 20, 300, 100); fire.addColorStop(0, 'rgba(255, 235, 59, 0.8)'); fire.addColorStop(0.5, 'rgba(255, 152, 0, 0.6)'); fire.addColorStop(1, 'rgba(244, 67, 54, 0)'); ctx.fillStyle = fire; ctx.beginPath(); ctx.moveTo(80, 30); ctx.lineTo(-300, 150); ctx.lineTo(-300, 50); ctx.fill(); ctx.restore(); 
-                // Mario
-                ctx.save(); ctx.translate(300, 650); ctx.scale(2.5, 2.5); ctx.fillStyle = '#E52521'; ctx.fillRect(0, 0, 30, 10); ctx.fillRect(-5, 10, 40, 5); ctx.fillStyle = '#FFE4E1'; ctx.fillRect(0, 15, 25, 15); ctx.fillStyle = '#000'; ctx.fillRect(15, 22, 12, 4); ctx.fillStyle = '#3751E0'; ctx.fillRect(-5, 30, 35, 25); ctx.fillStyle = '#E52521'; ctx.fillRect(25, 30, 10, 20); ctx.translate(35, 25); ctx.rotate(-0.5); ctx.fillStyle = 'rgba(200, 240, 255, 0.8)'; ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#00E676'; ctx.beginPath(); ctx.arc(0, 3, 7, 0, Math.PI*2); ctx.fill(); ctx.restore(); 
+            assetCache['sun'] = createOffscreenCanvas(150, 150, ctx => { 
+                const grd = ctx.createRadialGradient(75,75,20, 75,75,75); 
+                grd.addColorStop(0, '#FFFDE7'); grd.addColorStop(0.4, '#FDD835'); grd.addColorStop(1, 'rgba(253, 216, 53, 0)'); 
+                ctx.fillStyle = grd; ctx.fillRect(0,0,150,150); 
+            });
+            assetCache['moon'] = createOffscreenCanvas(100, 100, ctx => { 
+                ctx.shadowColor = '#E1F5FE'; ctx.shadowBlur = 25;
+                ctx.fillStyle = '#FFF9C4'; ctx.beginPath(); ctx.arc(50,50,40,0,Math.PI*2); ctx.fill(); 
+                ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.beginPath(); ctx.arc(35,40,8,0,Math.PI*2); ctx.arc(65,60,12,0,Math.PI*2); ctx.fill();
             });
 
-            // 7. Others
+            // 3. Background Layers
+            assetCache['mountain'] = createOffscreenCanvas(400, 300, ctx => { 
+                const grad = ctx.createLinearGradient(0, 0, 0, 300); grad.addColorStop(0, '#546E7A'); grad.addColorStop(1, '#263238'); 
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(0, 300); ctx.lineTo(200, 50); ctx.lineTo(400, 300); ctx.fill(); 
+                ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.beginPath(); ctx.moveTo(150, 112); ctx.lineTo(200, 50); ctx.lineTo(250, 112); ctx.lineTo(225, 90); ctx.lineTo(200, 110); ctx.lineTo(175, 90); ctx.fill(); 
+            });
+
+            // 4. Castle
+            assetCache['castle'] = createOffscreenCanvas(300, 400, ctx => { 
+                ctx.fillStyle = '#455A64'; ctx.fillRect(100, 100, 100, 300); ctx.fillRect(20, 200, 60, 200); ctx.fillRect(220, 200, 60, 200); 
+                const roofGrad = ctx.createLinearGradient(0,0,0,200); roofGrad.addColorStop(0, '#1A237E'); roofGrad.addColorStop(1, '#303F9F');
+                ctx.fillStyle = roofGrad; 
+                ctx.beginPath(); ctx.moveTo(100, 100); ctx.lineTo(150, 10); ctx.lineTo(200, 100); ctx.fill(); 
+                ctx.beginPath(); ctx.moveTo(20, 200); ctx.lineTo(50, 140); ctx.lineTo(80, 200); ctx.fill(); 
+                ctx.beginPath(); ctx.moveTo(220, 200); ctx.lineTo(250, 140); ctx.lineTo(280, 200); ctx.fill(); 
+                ctx.fillStyle = '#3E2723'; ctx.beginPath(); ctx.arc(150, 400, 45, Math.PI, 0); ctx.fill(); 
+                ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2; ctx.stroke();
+                ctx.fillStyle = '#263238'; ctx.fillRect(135, 160, 30, 50); ctx.fillRect(40, 240, 20, 30); ctx.fillRect(240, 240, 20, 30); 
+            });
+
+            // 5. Dragon (Boss)
+            assetCache['dragon'] = createOffscreenCanvas(400, 300, ctx => { 
+                ctx.scale(2, 2); 
+                const bodyGrad = ctx.createLinearGradient(0, 0, 0, 100); bodyGrad.addColorStop(0, '#43A047'); bodyGrad.addColorStop(1, '#1B5E20'); 
+                ctx.fillStyle = bodyGrad; ctx.beginPath(); ctx.ellipse(100, 80, 60, 35, 0, 0, Math.PI*2); ctx.fill(); 
+                ctx.beginPath(); ctx.moveTo(40, 80); ctx.quadraticCurveTo(-20, 80, 10, 130); ctx.lineTo(30, 90); ctx.fill(); 
+                ctx.fillStyle = '#212121'; for(let i=0; i<5; i++) { ctx.beginPath(); ctx.moveTo(50 + i*20, 50); ctx.lineTo(60 + i*20, 25); ctx.lineTo(70+i*20, 55); ctx.fill(); } 
+                ctx.fillStyle = '#66BB6A'; ctx.beginPath(); ctx.moveTo(150, 70); ctx.quadraticCurveTo(190, 30, 200, 50); ctx.lineTo(170, 90); ctx.fill(); 
+                ctx.fillStyle = '#C62828'; ctx.beginPath(); ctx.moveTo(110, 60); ctx.lineTo(190, -10); ctx.lineTo(150, 80); ctx.fill(); 
+                ctx.beginPath(); ctx.moveTo(90, 60); ctx.lineTo(40, -10); ctx.lineTo(60, 80); ctx.fill(); 
+                ctx.fillStyle = '#FFC107'; ctx.beginPath(); ctx.arc(185, 55, 4, 0, Math.PI*2); ctx.fill(); 
+                ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.arc(185, 55, 1.5, 0, Math.PI*2); ctx.fill(); 
+                ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.beginPath(); ctx.arc(205, 60, 5, 0, Math.PI*2); ctx.fill(); 
+            });
+
+            // 6. Title Art
+            assetCache['title_art'] = createOffscreenCanvas(1600, 900, ctx => { 
+                const sky = ctx.createLinearGradient(0, 0, 0, 900); sky.addColorStop(0, '#0D47A1'); sky.addColorStop(0.6, '#B71C1C'); sky.addColorStop(1, '#FFCCBC'); 
+                ctx.fillStyle = sky; ctx.fillRect(0, 0, 1600, 900); 
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.moveTo(0, 900); ctx.lineTo(400, 650); ctx.lineTo(800, 850); ctx.lineTo(1200, 650); ctx.lineTo(1600, 900); ctx.fill(); 
+                ctx.fillStyle = '#FFF'; for(let i=0; i<150; i++) { ctx.globalAlpha = Math.random(); ctx.beginPath(); ctx.arc(Math.random()*1600, Math.random()*600, Math.random()*2, 0, Math.PI*2); ctx.fill(); } ctx.globalAlpha = 1;
+            });
+
+            // 7. Effects & Objects
             const drawCloud = (ctx, color) => { ctx.fillStyle = color; ctx.beginPath(); ctx.arc(60, 60, 40, 0, Math.PI * 2); ctx.arc(100, 50, 50, 0, Math.PI * 2); ctx.arc(140, 60, 40, 0, Math.PI * 2); ctx.fill(); };
-            assetCache['cloud_white'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, 'rgba(255,255,255,0.95)')); assetCache['cloud_dark'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#607D8B')); assetCache['cloud_sunset'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#FFCC80'));
-            assetCache['princess'] = createOffscreenCanvas(80, 120, ctx => { const dressGrad = ctx.createLinearGradient(0, 40, 0, 110); dressGrad.addColorStop(0, '#FF69B4'); dressGrad.addColorStop(1, '#C71585'); ctx.fillStyle = dressGrad; ctx.beginPath(); ctx.moveTo(40, 40); ctx.lineTo(10, 110); ctx.quadraticCurveTo(40, 120, 70, 110); ctx.lineTo(40, 40); ctx.fill(); ctx.fillStyle = '#C71585'; ctx.fillRect(35, 40, 10, 70); ctx.fillStyle = 'rgba(224, 255, 255, 0.9)'; ctx.fillRect(30, 110, 8, 5); ctx.fillRect(42, 110, 8, 5); ctx.fillStyle = '#FF69B4'; ctx.fillRect(30, 25, 20, 15); ctx.fillStyle = '#FFE4E1'; ctx.beginPath(); ctx.ellipse(25, 35, 5, 15, -0.2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(55, 35, 5, 15, 0.2, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(22, 48, 4, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(58, 48, 4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFE4E1'; ctx.beginPath(); ctx.arc(40, 20, 12, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(40, 18, 14, Math.PI, 0); ctx.fill(); ctx.beginPath(); ctx.moveTo(26, 18); ctx.lineTo(20, 50); ctx.lineTo(35, 25); ctx.fill(); ctx.beginPath(); ctx.moveTo(54, 18); ctx.lineTo(60, 50); ctx.lineTo(45, 25); ctx.fill(); ctx.fillStyle = '#000'; ctx.fillRect(35, 18, 2, 2); ctx.fillRect(43, 18, 2, 2); ctx.fillStyle = '#F00'; ctx.fillRect(38, 24, 4, 1); ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(33, 10); ctx.lineTo(33, 5); ctx.lineTo(37, 8); ctx.lineTo(40, 4); ctx.lineTo(43, 8); ctx.lineTo(47, 5); ctx.lineTo(47, 10); ctx.fill(); });
-            assetCache['butterfly'] = createOffscreenCanvas(20, 20, ctx => { ctx.fillStyle = '#FF69B4'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FF1493'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, -Math.PI/4, 0, Math.PI*2); ctx.fill(); }); assetCache['bird'] = createOffscreenCanvas(30, 20, ctx => { ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,10); ctx.quadraticCurveTo(10,0, 15,10); ctx.quadraticCurveTo(20,0, 30,10); ctx.stroke(); });
-            assetCache['bush'] = createOffscreenCanvas(80, 50, (ctx) => { ctx.fillStyle = '#2E7D32'; ctx.beginPath(); ctx.arc(20, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(40, 20, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(60, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#E91E63'; ctx.beginPath(); ctx.arc(30,25,3,0,Math.PI*2); ctx.arc(50,35,3,0,Math.PI*2); ctx.fill(); }); assetCache['tree'] = createOffscreenCanvas(100, 150, (ctx) => { const trunk = ctx.createLinearGradient(40, 80, 60, 80); trunk.addColorStop(0, '#795548'); trunk.addColorStop(1, '#5D4037'); ctx.fillStyle = trunk; ctx.fillRect(40, 80, 20, 70); ctx.fillStyle = '#388E3C'; ctx.beginPath(); ctx.arc(50, 80, 30, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(70, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(50, 40, 30, 0, Math.PI*2); ctx.fill(); }); assetCache['flask'] = createOffscreenCanvas(60, 100, (ctx) => { ctx.fillStyle = 'rgba(173, 216, 230, 0.6)'; ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(40, 0); ctx.lineTo(40, 40); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.lineTo(20, 40); ctx.fill(); ctx.fillStyle = '#FF6347'; ctx.beginPath(); ctx.moveTo(10, 70); ctx.lineTo(50, 70); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.fill(); }); assetCache['rock'] = createOffscreenCanvas(50, 40, (ctx) => { ctx.fillStyle = '#9E9E9E'; ctx.beginPath(); ctx.moveTo(10,40); ctx.lineTo(20,10); ctx.lineTo(40,20); ctx.lineTo(50,40); ctx.fill(); }); assetCache['flower'] = createOffscreenCanvas(30, 40, (ctx) => { ctx.fillStyle = '#4CAF50'; ctx.fillRect(13, 20, 4, 20); ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.arc(10, 15, 5, 0, Math.PI*2); ctx.arc(20, 15, 5, 0, Math.PI*2); ctx.arc(15, 8, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.arc(15, 15, 4, 0, Math.PI*2); ctx.fill(); });
-            assetCache['enemy_basic'] = createOffscreenCanvas(40, 40, ctx => { const grad = ctx.createLinearGradient(0,0,40,40); grad.addColorStop(0, '#76FF03'); grad.addColorStop(1, '#64DD17'); ctx.fillStyle = grad; ctx.fillRect(0,0,40,40); ctx.fillStyle = '#FFF'; ctx.fillRect(5,5,10,10); ctx.fillRect(25,5,10,10); ctx.fillStyle = '#000'; ctx.fillRect(8,8,4,4); ctx.fillRect(28,8,4,4); ctx.fillStyle = '#D50000'; ctx.fillRect(10,30,20,5); }); assetCache['enemy_spiky'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = '#6200EA'; ctx.fillRect(0,10,40,30); for(let i=0; i<40; i+=10) { ctx.beginPath(); ctx.moveTo(i,10); ctx.lineTo(i+5,0); ctx.lineTo(i+10,10); ctx.fill(); } ctx.fillStyle = '#FFF'; ctx.fillRect(5,15,10,10); ctx.fillRect(25,15,10,10); ctx.fillStyle = '#000'; ctx.fillRect(8,18,4,4); ctx.fillRect(28,18,4,4); }); assetCache['enemy_fire'] = createOffscreenCanvas(40, 40, ctx => { const grad = ctx.createLinearGradient(0,0,0,40); grad.addColorStop(0, '#FF3D00'); grad.addColorStop(1, '#BF360C'); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(20,0); ctx.quadraticCurveTo(40,10,40,40); ctx.lineTo(0,40); ctx.quadraticCurveTo(0,10,20,0); ctx.fill(); ctx.fillStyle = '#FFEA00'; ctx.fillRect(8,15,8,8); ctx.fillRect(24,15,8,8); }); assetCache['enemy_ghost'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(20,20,20,Math.PI,0); ctx.lineTo(40,40); ctx.lineTo(30,35); ctx.lineTo(20,40); ctx.lineTo(10,35); ctx.lineTo(0,40); ctx.fill(); ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(12,15,3,0,Math.PI*2); ctx.arc(28,15,3,0,Math.PI*2); ctx.fill(); }); assetCache['enemy_turtle'] = createOffscreenCanvas(40, 30, ctx => { ctx.fillStyle = '#43A047'; ctx.fillRect(0,10,10,10); ctx.fillStyle = '#795548'; ctx.beginPath(); ctx.arc(25,15,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle = '#43A047'; ctx.fillRect(15,25,5,5); ctx.fillRect(35,25,5,5); });
-            assetCache['coin'] = createOffscreenCanvas(30, 30, ctx => { const grad = ctx.createRadialGradient(15,15,5, 15,15,15); grad.addColorStop(0, '#FFEB3B'); grad.addColorStop(1, '#FFC107'); ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(15, 15, 14, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = '#F57F17'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#F57F17'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.textBaseline='middle'; ctx.fillText('$', 15, 16); });
-            assetCache['heart'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.moveTo(20, 35); ctx.bezierCurveTo(20, 32, 5, 25, 5, 12); ctx.bezierCurveTo(5, 5, 15, 5, 20, 12); ctx.bezierCurveTo(25, 5, 35, 5, 35, 12); ctx.bezierCurveTo(35, 25, 20, 32, 20, 35); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(12, 12, 3, 0, Math.PI*2); ctx.fill(); });
-            assetCache['potion'] = createOffscreenCanvas(30, 40, ctx => { ctx.fillStyle = '#FFFFFF'; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.arc(15, 25, 12, 0, Math.PI*2); ctx.fill(); ctx.fillRect(11, 5, 8, 10); ctx.globalAlpha = 1.0; ctx.fillStyle = '#FF1744'; ctx.beginPath(); ctx.arc(15, 25, 10, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#8D6E63'; ctx.fillRect(10, 2, 10, 5); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(18, 20, 4, 4); });
-            assetCache['projectile'] = createOffscreenCanvas(20, 20, ctx => { ctx.fillStyle = '#00BCD4'; ctx.beginPath(); ctx.arc(10, 10, 8, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(13, 7, 3, 0, Math.PI*2); ctx.fill(); ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1; ctx.stroke(); });
+            assetCache['cloud_white'] = createOffscreenCanvas(200, 120, ctx => { ctx.shadowColor='rgba(0,0,0,0.1)'; ctx.shadowBlur=10; drawCloud(ctx, 'rgba(255,255,255,0.9)'); });
+            assetCache['cloud_dark'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#455A64'));
+            assetCache['cloud_sunset'] = createOffscreenCanvas(200, 120, ctx => drawCloud(ctx, '#FFB74D'));
+            assetCache['princess'] = createOffscreenCanvas(80, 120, ctx => { 
+                const dressGrad = ctx.createLinearGradient(0, 40, 0, 110); dressGrad.addColorStop(0, '#F06292'); dressGrad.addColorStop(1, '#C2185B'); 
+                ctx.fillStyle = dressGrad; ctx.beginPath(); ctx.moveTo(40, 40); ctx.lineTo(10, 110); ctx.quadraticCurveTo(40, 125, 70, 110); ctx.lineTo(40, 40); ctx.fill(); 
+                ctx.fillStyle = '#C2185B'; ctx.fillRect(35, 40, 10, 70); 
+                ctx.fillStyle = '#FFCCBC'; ctx.beginPath(); ctx.arc(40, 20, 12, 0, Math.PI*2); ctx.fill(); 
+                ctx.fillStyle = '#FFD54F'; ctx.beginPath(); ctx.arc(40, 18, 15, Math.PI, 0); ctx.fill(); 
+                ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.moveTo(30,10); ctx.lineTo(30,5); ctx.lineTo(35,8); ctx.lineTo(40,4); ctx.lineTo(45,8); ctx.lineTo(50,5); ctx.lineTo(50,10); ctx.fill();
+            });
+            assetCache['enemy_basic'] = createOffscreenCanvas(40, 40, ctx => { 
+                const grad = ctx.createLinearGradient(0,0,40,40); grad.addColorStop(0, '#76FF03'); grad.addColorStop(1, '#33691E'); 
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.roundRect(0,0,40,40, 8); ctx.fill();
+                ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.arc(12,12,6,0,Math.PI*2); ctx.arc(28,12,6,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(14,12,2,0,Math.PI*2); ctx.arc(26,12,2,0,Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#D50000'; ctx.beginPath(); ctx.roundRect(10, 28, 20, 6, 3); ctx.fill();
+            });
+            assetCache['enemy_spiky'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = '#6200EA'; ctx.fillRect(0,10,40,30); for(let i=0; i<40; i+=10) { ctx.beginPath(); ctx.moveTo(i,10); ctx.lineTo(i+5,0); ctx.lineTo(i+10,10); ctx.fill(); } ctx.fillStyle = '#FFF'; ctx.fillRect(5,15,10,10); ctx.fillRect(25,15,10,10); ctx.fillStyle = '#000'; ctx.fillRect(8,18,4,4); ctx.fillRect(28,18,4,4); });
+            assetCache['enemy_fire'] = createOffscreenCanvas(40, 40, ctx => { const grad = ctx.createLinearGradient(0,0,0,40); grad.addColorStop(0, '#FF3D00'); grad.addColorStop(1, '#BF360C'); ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(20,0); ctx.quadraticCurveTo(40,10,40,40); ctx.lineTo(0,40); ctx.quadraticCurveTo(0,10,20,0); ctx.fill(); ctx.fillStyle = '#FFEA00'; ctx.fillRect(8,15,8,8); ctx.fillRect(24,15,8,8); });
+            assetCache['enemy_ghost'] = createOffscreenCanvas(40, 40, ctx => { ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.shadowColor='rgba(255,255,255,0.5)'; ctx.shadowBlur=10; ctx.beginPath(); ctx.arc(20,20,20,Math.PI,0); ctx.lineTo(40,40); ctx.lineTo(30,35); ctx.lineTo(20,40); ctx.lineTo(10,35); ctx.lineTo(0,40); ctx.fill(); ctx.fillStyle = '#000'; ctx.beginPath(); ctx.arc(12,15,3,0,Math.PI*2); ctx.arc(28,15,3,0,Math.PI*2); ctx.fill(); });
+            assetCache['enemy_turtle'] = createOffscreenCanvas(40, 30, ctx => { ctx.fillStyle = '#43A047'; ctx.fillRect(0,10,10,10); ctx.fillStyle = '#5D4037'; ctx.beginPath(); ctx.arc(25,15,15,0,Math.PI*2); ctx.fill(); ctx.fillStyle = '#43A047'; ctx.fillRect(15,25,5,5); ctx.fillRect(35,25,5,5); });
+            assetCache['coin'] = createOffscreenCanvas(30, 30, ctx => { 
+                const grad = ctx.createRadialGradient(12,12,2, 15,15,15); grad.addColorStop(0, '#FFF59D'); grad.addColorStop(0.5, '#FBC02D'); grad.addColorStop(1, '#F57F17'); 
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(15, 15, 13, 0, Math.PI * 2); ctx.fill(); 
+                ctx.strokeStyle = '#FFF8E1'; ctx.lineWidth = 2; ctx.stroke(); 
+                ctx.fillStyle = '#FFF'; ctx.font = 'bold 18px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline='middle'; ctx.fillText('$', 15, 16); 
+            });
+            assetCache['potion'] = createOffscreenCanvas(30, 40, ctx => { ctx.fillStyle = '#FFFFFF'; ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.arc(15, 25, 12, 0, Math.PI*2); ctx.fill(); ctx.fillRect(11, 5, 8, 10); ctx.globalAlpha = 1.0; ctx.fillStyle = '#F50057'; ctx.beginPath(); ctx.arc(15, 25, 10, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#8D6E63'; ctx.fillRect(10, 2, 10, 5); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(18, 20, 4, 4); });
+            assetCache['projectile'] = createOffscreenCanvas(20, 20, ctx => { 
+                const grad = ctx.createRadialGradient(10,10,2, 10,10,10); grad.addColorStop(0, '#E0F7FA'); grad.addColorStop(1, '#00BCD4');
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(10, 10, 8, 0, Math.PI*2); ctx.fill(); 
+                ctx.shadowColor = '#00BCD4'; ctx.shadowBlur = 10; ctx.strokeStyle = '#FFF'; ctx.lineWidth = 1; ctx.stroke(); 
+            });
+            assetCache['bush'] = createOffscreenCanvas(80, 50, (ctx) => { ctx.fillStyle = '#2E7D32'; ctx.beginPath(); ctx.arc(20, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(40, 20, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(60, 30, 20, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#E91E63'; ctx.beginPath(); ctx.arc(30,25,3,0,Math.PI*2); ctx.arc(50,35,3,0,Math.PI*2); ctx.fill(); }); 
+            assetCache['tree'] = createOffscreenCanvas(100, 150, (ctx) => { const trunk = ctx.createLinearGradient(40, 80, 60, 80); trunk.addColorStop(0, '#795548'); trunk.addColorStop(1, '#5D4037'); ctx.fillStyle = trunk; ctx.fillRect(40, 80, 20, 70); ctx.fillStyle = '#388E3C'; ctx.beginPath(); ctx.arc(50, 80, 30, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(30, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(70, 60, 25, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(50, 40, 30, 0, Math.PI*2); ctx.fill(); }); 
+            assetCache['flask'] = createOffscreenCanvas(60, 100, (ctx) => { ctx.fillStyle = 'rgba(173, 216, 230, 0.6)'; ctx.beginPath(); ctx.moveTo(20, 0); ctx.lineTo(40, 0); ctx.lineTo(40, 40); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.lineTo(20, 40); ctx.fill(); ctx.fillStyle = '#FF6347'; ctx.beginPath(); ctx.moveTo(10, 70); ctx.lineTo(50, 70); ctx.lineTo(60, 100); ctx.lineTo(0, 100); ctx.fill(); }); 
+            assetCache['rock'] = createOffscreenCanvas(50, 40, (ctx) => { ctx.fillStyle = '#9E9E9E'; ctx.beginPath(); ctx.moveTo(10,40); ctx.lineTo(20,10); ctx.lineTo(40,20); ctx.lineTo(50,40); ctx.fill(); }); 
+            assetCache['flower'] = createOffscreenCanvas(30, 40, (ctx) => { ctx.fillStyle = '#4CAF50'; ctx.fillRect(13, 20, 4, 20); ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.arc(10, 15, 5, 0, Math.PI*2); ctx.arc(20, 15, 5, 0, Math.PI*2); ctx.arc(15, 8, 5, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FFEB3B'; ctx.beginPath(); ctx.arc(15, 15, 4, 0, Math.PI*2); ctx.fill(); });
+            assetCache['butterfly'] = createOffscreenCanvas(20, 20, ctx => { ctx.fillStyle = '#FF69B4'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, Math.PI/4, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#FF1493'; ctx.beginPath(); ctx.ellipse(10, 10, 8, 5, -Math.PI/4, 0, Math.PI*2); ctx.fill(); }); 
+            assetCache['bird'] = createOffscreenCanvas(30, 20, ctx => { ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0,10); ctx.quadraticCurveTo(10,0, 15,10); ctx.quadraticCurveTo(20,0, 30,10); ctx.stroke(); });
+            assetCache['heart'] = createOffscreenCanvas(40, 40, ctx => { ctx.shadowColor = '#F44336'; ctx.shadowBlur = 10; ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.moveTo(20, 35); ctx.bezierCurveTo(20, 32, 5, 25, 5, 12); ctx.bezierCurveTo(5, 5, 15, 5, 20, 12); ctx.bezierCurveTo(25, 5, 35, 5, 35, 12); ctx.bezierCurveTo(35, 25, 20, 32, 20, 35); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.beginPath(); ctx.arc(12, 12, 3, 0, Math.PI*2); ctx.fill(); });
         };
 
         // --- 3. AUDIO SERVICE ---
@@ -163,17 +284,17 @@
             const ctx = new AudioContext(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); const now = ctx.currentTime;
             const playTone = (freq, type, dur, volStart, volEnd) => { osc.type = type; osc.frequency.setValueAtTime(freq, now); gain.gain.setValueAtTime(volStart, now); gain.gain.linearRampToValueAtTime(volEnd, now + dur); osc.start(now); osc.stop(now + dur); };
             switch (type) {
-                case 'jump': osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.1); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
-                case 'coin': osc.type = 'sine'; osc.frequency.setValueAtTime(1000, now); osc.frequency.setValueAtTime(1500, now + 0.05); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
-                case 'enemy': playTone(200, 'sawtooth', 0.1, 0.2, 0); break;
-                case 'win': osc.type = 'triangle'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1); osc.frequency.setValueAtTime(784, now + 0.2); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.5); osc.start(now); osc.stop(now + 0.5); break;
-                case 'lose': playTone(300, 'sawtooth', 0.3, 0.2, 0); break;
-                case 'shoot': osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.1); osc.start(now); osc.stop(now + 0.1); break;
-                case 'damage': playTone(150, 'sawtooth', 0.1, 0.2, 0); break;
-                case 'heal': osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(800, now + 0.2); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
-                case 'roar': playTone(100, 'sawtooth', 1.5, 0.3, 0); break;
-                case 'scream': osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.linearRampToValueAtTime(1200, now + 0.2); osc.frequency.linearRampToValueAtTime(600, now + 1.0); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 1.0); osc.start(now); osc.stop(now + 1.0); break;
-                case 'love': osc.type = 'sine'; osc.frequency.setValueAtTime(440, now); osc.frequency.linearRampToValueAtTime(660, now + 0.5); osc.frequency.linearRampToValueAtTime(880, now + 1.0); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 2.0); osc.start(now); osc.stop(now + 2.0); break;
+                case 'jump': osc.type = 'square'; osc.frequency.setValueAtTime(180, now); osc.frequency.exponentialRampToValueAtTime(500, now + 0.1); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); break;
+                case 'coin': osc.type = 'sine'; osc.frequency.setValueAtTime(1300, now); osc.frequency.setValueAtTime(1800, now + 0.08); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3); break;
+                case 'enemy': playTone(120, 'sawtooth', 0.15, 0.2, 0); break;
+                case 'win': osc.type = 'square'; osc.frequency.setValueAtTime(523, now); osc.frequency.setValueAtTime(659, now + 0.1); osc.frequency.setValueAtTime(784, now + 0.2); osc.frequency.setValueAtTime(1046, now + 0.4); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.8); osc.start(now); osc.stop(now + 0.8); break;
+                case 'lose': playTone(150, 'sawtooth', 0.6, 0.3, 0); break;
+                case 'shoot': osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(200, now + 0.15); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.15); osc.start(now); osc.stop(now + 0.15); break;
+                case 'damage': playTone(100, 'sawtooth', 0.2, 0.3, 0); break;
+                case 'heal': osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(800, now + 0.3); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.3); osc.start(now); osc.stop(now + 0.3); break;
+                case 'roar': playTone(70, 'sawtooth', 1.5, 0.5, 0); break;
+                case 'scream': osc.type = 'sine'; osc.frequency.setValueAtTime(900, now); osc.frequency.linearRampToValueAtTime(1300, now + 0.2); osc.frequency.linearRampToValueAtTime(700, now + 1.0); gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0, now + 1.0); osc.start(now); osc.stop(now + 1.0); break;
+                case 'love': osc.type = 'triangle'; osc.frequency.setValueAtTime(440, now); osc.frequency.linearRampToValueAtTime(660, now + 0.5); osc.frequency.linearRampToValueAtTime(880, now + 1.0); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 2.0); osc.start(now); osc.stop(now + 2.0); break;
             }
         };
 
@@ -183,23 +304,47 @@
                 if (!enabled) { if (intervalRef.current) clearInterval(intervalRef.current); return; }
                 const AudioContext = window.AudioContext || window.webkitAudioContext; if (!AudioContext) return; if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
                 const ctx = audioCtxRef.current;
-                const playNote = (freq, dur, type = 'sine') => { if (ctx.state === 'suspended') ctx.resume(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.type = type; osc.frequency.value = freq; gain.gain.setValueAtTime(0.02, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); osc.start(); osc.stop(ctx.currentTime + dur); };
+                const playNote = (freq, dur, type = 'sine', vol = 0.02) => { 
+                    if (ctx.state === 'suspended') ctx.resume(); 
+                    const osc = ctx.createOscillator(); const gain = ctx.createGain(); 
+                    osc.connect(gain); gain.connect(ctx.destination); 
+                    osc.type = type; osc.frequency.value = freq; 
+                    gain.gain.setValueAtTime(vol, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur); 
+                    osc.start(); osc.stop(ctx.currentTime + dur); 
+                };
                 if (intervalRef.current) clearInterval(intervalRef.current);
                 let melody = [], speed = 500, type = 'sine';
                 if (isCinematic) { melody = [100, 120, 100, 150, 80]; speed = 300; type = 'sawtooth'; } 
                 else {
                     switch(level) {
-                        case 1: melody = [523, 659, 784, 1046]; speed = 400; type = 'sine'; break;
-                        case 2: melody = [261, 293, 329, 349]; speed = 600; type = 'triangle'; break;
-                        case 3: melody = [392, 440, 493, 523]; speed = 700; type = 'sine'; break;
-                        case 4: melody = [196, 220, 246, 261]; speed = 800; type = 'square'; break;
-                        case 5: melody = [130, 146, 164, 174, 196]; speed = 200; type = 'sawtooth'; break;
+                        case 1: melody = [392, 523, 659, 784, 1046, 784, 659]; speed = 300; type = 'square'; break;
+                        case 2: melody = [220, 261, 329, 261, 220]; speed = 600; type = 'triangle'; break;
+                        case 3: melody = [440, 493, 523, 587, 523, 493]; speed = 400; type = 'sine'; break;
+                        case 4: melody = [196, 220, 246, 261, 220]; speed = 700; type = 'square'; break;
+                        case 5: melody = [110, 123, 130, 146, 164]; speed = 200; type = 'sawtooth'; break;
                         default: melody = [440];
                     }
                 }
                 let idx = 0; intervalRef.current = setInterval(() => { playNote(melody[idx], speed/1000, type); idx = (idx + 1) % melody.length; }, speed);
                 return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
             }, [level, enabled, isCinematic]);
+        };
+
+        // HELPER FUNCTION: DRAW PLAYER (Reusable)
+        const drawPlayer = (ctx, p) => {
+            ctx.save(); ctx.translate(p.x, p.y);
+            if (performance.now() < p.invulnerableUntil && Math.floor(performance.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
+            if (p.direction === -1) { ctx.translate(p.width, 0); ctx.scale(-1, 1); }
+            ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(p.width/2, p.height, 20, 5, 0, 0, Math.PI*2); ctx.fill();
+            const { coat, hat, pants } = p.skinColor || { coat: '#FFF', hat: '#F00', pants: '#00F' }; // Default fallback
+            const legOffset = Math.sin(p.frame) * 3;
+            const hatGrad = ctx.createLinearGradient(5, 5, 45, 25); hatGrad.addColorStop(0, hat); hatGrad.addColorStop(1, darkenColor(hat, 0.3)); ctx.fillStyle = hatGrad; ctx.fillRect(5, 5, 40, 20); ctx.fillRect(0, 20, 50, 15); ctx.fillStyle = 'rgba(225, 245, 254, 0.9)'; ctx.fillRect(10, 23, 30, 10); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(10, 23, 30, 10);
+            const coatGrad = ctx.createLinearGradient(5, 35, 45, 65); coatGrad.addColorStop(0, coat); coatGrad.addColorStop(1, darkenColor(coat, 0.2)); ctx.fillStyle = coatGrad; ctx.fillRect(5, 35, 40, 30); ctx.fillStyle = coat; ctx.fillRect(20, 25, 10, 10);
+            const faceGrad = ctx.createRadialGradient(25, 42, 0, 25, 42, 15); faceGrad.addColorStop(0, '#FFE4E1'); faceGrad.addColorStop(1, '#FFCDD2'); ctx.fillStyle = faceGrad; ctx.fillRect(12, 35, 26, 15); ctx.fillStyle = '#000'; ctx.fillRect(17, 39, 3, 3); ctx.fillRect(30, 39, 3, 3);
+            const pantsGrad = ctx.createLinearGradient(5, 65, 45, 80); pantsGrad.addColorStop(0, pants); pantsGrad.addColorStop(1, darkenColor(pants, 0.3)); ctx.fillStyle = pantsGrad; ctx.fillRect(5, 65, 40, 15);
+            ctx.fillStyle = '#5D4037'; ctx.fillRect(5, 80 + legOffset, 15, 15); ctx.fillRect(30, 80 - legOffset, 15, 15);
+            ctx.fillStyle = '#FFCDD2'; const armOffset = Math.sin(p.frame + Math.PI) * 2; ctx.fillRect(2, 45 + armOffset, 8, 20); ctx.fillRect(40, 45 - armOffset, 8, 20); ctx.fillStyle = '#FFF'; ctx.fillRect(2, 65 + armOffset, 8, 8); ctx.fillRect(40, 65 - armOffset, 8, 8);
+            ctx.restore();
         };
 
         // --- 4. GAME COMPONENT ---
@@ -213,21 +358,22 @@
             const [soundEnabled, setSoundEnabled] = useState(true);
             const [playerName, setPlayerName] = useState("Người chơi");
             const [selectedOption, setSelectedOption] = useState(null);
+            const [tfSelections, setTfSelections] = useState([]); // For True/False questions
             const [feedback, setFeedback] = useState(null);
-            const [isFullscreen, setIsFullscreen] = useState(false);
-            const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
+            const [isPortrait, setIsPortrait] = useState(false);
             
             useBackgroundMusic(level, soundEnabled, gameState === 'INTRO_CINEMATIC');
 
             useEffect(() => {
                 const handleResize = () => setIsPortrait(window.innerHeight > window.innerWidth);
+                handleResize();
                 window.addEventListener('resize', handleResize);
                 return () => window.removeEventListener('resize', handleResize);
             }, []);
 
             const engine = useRef({
                 running: false, lastTime: 0, cinematicTime: 0, 
-                player: { x: 100, y: 500, vx: 0, vy: 0, w: 0, h: 0, width: 50, height: 75, onGround: false, frame: 0, direction: 1, skinColor: { coat: '#FFF', hat: '#E52521', pants: '#3751E0' }, hp: 3, maxHp: 3, invulnerableUntil: 0, ammo: 999 },
+                player: { x: 100, y: 500, vx: 0, vy: 0, w: 0, h: 0, width: 50, height: 75, onGround: false, frame: 0, direction: 1, skinColor: { coat: '#FFFFFF', hat: '#E52521', pants: '#3751E0' }, hp: 3, maxHp: 3, invulnerableUntil: 0, ammo: 999 },
                 camera: { x: 0, y: 0 },
                 keys: { left: false, right: false, up: false, shoot: false },
                 platforms: [], coins: [], powerUps: [], enemies: [], boss: null, projectiles: [], clouds: [], mountains: [], critters: [], decor: [],
@@ -235,8 +381,8 @@
             });
 
             const toggleFullscreen = () => {
-                if (!document.fullscreenElement) { document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)); } 
-                else { if (document.exitFullscreen) { document.exitFullscreen(); setIsFullscreen(false); } }
+                if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(() => {}); } 
+                else { if (document.exitFullscreen) { document.exitFullscreen(); } }
             };
 
             const initLevel = useCallback((lvl) => {
@@ -246,11 +392,11 @@
                 let numPlatforms = 2 + Math.floor(lvl/2) + 1; let enemyTypes = ['basic']; let decorTypes = ['bush', 'rock', 'flower', 'tree']; let enemySpeedBase = 2.0 + lvl * 0.4; let gapSize = 80 + (lvl * 10);
                 
                 switch(lvl) {
-                    case 1: eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 200, y: 150} }; eng.player.skinColor = { coat: '#FFFFFF', hat: '#E52521', pants: '#3751E0' }; decorTypes = ['flask', 'bush', 'flower', 'tree']; enemyTypes = ['basic', 'turtle']; break;
-                    case 2: eng.weather = { rain: true, storm: false, night: false, flash: 0, sun: {x: -100, y: -100} }; eng.player.skinColor = { coat: '#87CEEB', hat: '#32CD32', pants: '#8A2BE2' }; enemyTypes = ['basic', 'spiky', 'turtle']; decorTypes = ['rock', 'tree']; break;
-                    case 3: eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 800, y: 400} }; eng.player.skinColor = { coat: '#FFD700', hat: '#FF4500', pants: '#8B4513' }; enemyTypes = ['basic', 'turtle', 'ghost']; decorTypes = ['bush', 'flower', 'rock', 'tree']; break;
-                    case 4: eng.weather = { rain: false, storm: false, night: true, flash: 0, sun: {x: 1000, y: 100} }; eng.player.skinColor = { coat: '#8A2BE2', hat: '#FF69B4', pants: '#228B22' }; enemyTypes = ['ghost', 'spiky', 'fire']; decorTypes = ['rock', 'tree']; break;
-                    case 5: eng.weather = { rain: true, storm: true, night: true, flash: 0, sun: {x: -100, y: -100} }; eng.player.skinColor = { coat: '#FF0000', hat: '#FFFF00', pants: '#0000FF' }; enemyTypes = ['fire', 'ghost', 'spiky']; decorTypes = ['rock']; break;
+                    case 1: eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 200, y: 150} }; eng.player.skinColor = { coat: '#FFFFFF', hat: '#D50000', pants: '#1565C0' }; decorTypes = ['flask', 'bush', 'flower', 'tree']; enemyTypes = ['basic', 'turtle']; break;
+                    case 2: eng.weather = { rain: true, storm: false, night: false, flash: 0, sun: {x: -100, y: -100} }; eng.player.skinColor = { coat: '#81D4FA', hat: '#76FF03', pants: '#6A1B9A' }; enemyTypes = ['basic', 'spiky', 'turtle']; decorTypes = ['rock', 'tree']; break;
+                    case 3: eng.weather = { rain: false, storm: false, night: false, flash: 0, sun: {x: 800, y: 400} }; eng.player.skinColor = { coat: '#FFF176', hat: '#FF3D00', pants: '#3E2723' }; enemyTypes = ['basic', 'turtle', 'ghost']; decorTypes = ['bush', 'flower', 'rock', 'tree']; break;
+                    case 4: eng.weather = { rain: false, storm: false, night: true, flash: 0, sun: {x: 1000, y: 100} }; eng.player.skinColor = { coat: '#B39DDB', hat: '#E91E63', pants: '#1B5E20' }; enemyTypes = ['ghost', 'spiky', 'fire']; decorTypes = ['rock', 'tree']; break;
+                    case 5: eng.weather = { rain: true, storm: true, night: true, flash: 0, sun: {x: -100, y: -100} }; eng.player.skinColor = { coat: '#EF5350', hat: '#FFD600', pants: '#0D47A1' }; enemyTypes = ['fire', 'ghost', 'spiky']; decorTypes = ['rock']; break;
                 }
 
                 eng.platforms = []; eng.enemies = []; eng.coins = []; eng.powerUps = []; eng.clouds = []; eng.mountains = []; eng.decor = []; eng.critters = [];
@@ -258,7 +404,13 @@
                 if (lvl === 5) {
                     eng.platforms.push({ x: -200, y: GAME_HEIGHT - 80, w: GAME_WIDTH + 400, h: 80 });
                     eng.platforms.push({ x: 200, y: GAME_HEIGHT - 250, w: 200, h: 40 }); eng.platforms.push({ x: GAME_WIDTH - 400, y: GAME_HEIGHT - 250, w: 200, h: 40 }); eng.platforms.push({ x: GAME_WIDTH / 2 - 200, y: GAME_HEIGHT - 400, w: 400, h: 40 });
-                    eng.boss = { x: GAME_WIDTH - 300, y: 100, w: 300, h: 200, vx: 0, vy: 0, hp: 50, maxHp: 50, dead: false, phase: 1, state: 'flying', timer: 0, trigger50Done: false, trigger30Done: false, failedQ2: false, exploding: false, explosionTimer: 0 };
+                    eng.boss = { 
+                        x: GAME_WIDTH - 300, y: 100, w: 300, h: 200, vx: 0, vy: 0, 
+                        hp: 50, maxHp: 50, dead: false, phase: 1, state: 'flying', timer: 0, 
+                        trigger50Done: false, trigger30Done: false, 
+                        exploding: false, explosionTimer: 0,
+                        correctAnswersBatch: 0 // New Logic: Track correct answers in a phase
+                    };
                     eng.goal = { x: -1000, y: 0, w: 0, h: 0 };
                 } else {
                     eng.platforms.push({ x: -200, y: GAME_HEIGHT - 60, w: 500, h: 60 }); eng.decor.push({x: 50, y: GAME_HEIGHT - 60, type: 'tree'}); eng.decor.push({x: 150, y: GAME_HEIGHT - 60, type: 'bush'});
@@ -284,38 +436,55 @@
             }, []);
 
             const createParticles = (x, y, color, count = 12, speed = 15) => { for(let i=0; i<count; i++) engine.current.particles.push({ x, y, vx: (Math.random()-0.5)*speed, vy: (Math.random()-0.5)*speed, life: 30 + Math.random() * 20, color }); };
-            const resetPlayer = () => { const eng = engine.current; eng.player.x = 100; eng.player.y = 500; eng.player.vx = 0; eng.player.vy = 0; eng.player.direction = 1; eng.player.hp = 3; eng.player.invulnerableUntil = 0; eng.camera.x = 0; eng.keys = { left: false, right: false, up: false, shoot: false }; if (level === 5 && eng.boss) { eng.boss.hp = eng.boss.maxHp; eng.boss.x = GAME_WIDTH - 300; eng.boss.y = 100; eng.boss.phase = 1; eng.boss.state = 'flying'; eng.boss.timer = 0; eng.boss.trigger50Done = false; eng.boss.trigger30Done = false; eng.boss.failedQ2 = false; eng.boss.exploding = false; eng.boss.dead = false; } setScore(s => Math.max(0, s - 20)); playSound('lose'); createParticles(eng.player.x, eng.player.y, '#F00'); };
+            const resetPlayer = () => { const eng = engine.current; eng.player.x = 100; eng.player.y = 500; eng.player.vx = 0; eng.player.vy = 0; eng.player.direction = 1; eng.player.hp = 3; eng.player.invulnerableUntil = 0; eng.camera.x = 0; eng.keys = { left: false, right: false, up: false, shoot: false }; if (level === 5 && eng.boss) { eng.boss.hp = eng.boss.maxHp; eng.boss.x = GAME_WIDTH - 300; eng.boss.y = 100; eng.boss.phase = 1; eng.boss.state = 'flying'; eng.boss.timer = 0; eng.boss.trigger50Done = false; eng.boss.trigger30Done = false; eng.boss.correctAnswersBatch = 0; eng.boss.exploding = false; eng.boss.dead = false; } setScore(s => Math.max(0, s - 20)); playSound('lose'); createParticles(eng.player.x, eng.player.y, '#F00'); };
             const damagePlayer = () => { const eng = engine.current; const p = eng.player; const now = performance.now(); if (now < p.invulnerableUntil) return; p.hp -= 1; p.invulnerableUntil = now + 2000; playSound('damage'); p.vy = -10; p.vx = -8 * p.direction; if (p.hp <= 0) resetPlayer(); };
 
-            // Initialize Assets and ensure Title Screen art is drawn
             useEffect(() => { 
                 initAssets(); 
                 if (gameState === 'START' && titleRef.current) { 
                     const ctx = titleRef.current.getContext('2d'); 
                     const art = assetCache['title_art']; 
                     if(ctx && art) {
+                        // 1. Draw Background
                         ctx.drawImage(art, 0, 0, titleRef.current.width, titleRef.current.height);
+                        
+                        // 2. Draw Giant Dragon (Right Side)
+                        const dragon = assetCache['dragon'];
+                        if (dragon) {
+                            ctx.save();
+                            ctx.translate(1300, 500); // Position right
+                            ctx.scale(-3, 3); // Face left and scale up
+                            ctx.drawImage(dragon, -200, -150); // Center pivot
+                            
+                            // Fire Breath
+                            ctx.fillStyle = 'rgba(255, 69, 0, 0.4)';
+                            ctx.beginPath();
+                            ctx.moveTo(-150, -50);
+                            ctx.lineTo(-800, 100);
+                            ctx.lineTo(-800, -200);
+                            ctx.fill();
+                            ctx.restore();
+                        }
+
+                        // 3. Draw Hero Mario (Left Side)
+                        const mario = {
+                            x: 300, y: 600, w: 0, h: 0, width: 50, height: 75,
+                            direction: 1, frame: 0,
+                            skinColor: { coat: '#EF5350', hat: '#FFD600', pants: '#0D47A1' },
+                            invulnerableUntil: 0
+                        };
+                        ctx.save();
+                        ctx.translate(0, 0);
+                        ctx.scale(2, 2); // Double size for title
+                        drawPlayer(ctx, { ...mario, x: 150, y: 300 }); // Adjust coordinate for scale
+                        ctx.restore();
                     }
                 } 
             }, [gameState]);
 
             useEffect(() => {
                 let requestID;
-                const drawPlayer = (ctx, p) => {
-                    ctx.save(); ctx.translate(p.x, p.y);
-                    if (performance.now() < p.invulnerableUntil && Math.floor(performance.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
-                    if (p.direction === -1) { ctx.translate(p.width, 0); ctx.scale(-1, 1); }
-                    ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(p.width/2, p.height, 20, 5, 0, 0, Math.PI*2); ctx.fill();
-                    const { coat, hat, pants } = p.skinColor; const legOffset = Math.sin(p.frame) * 3;
-                    const hatGrad = ctx.createLinearGradient(5, 5, 45, 25); hatGrad.addColorStop(0, hat); hatGrad.addColorStop(1, darkenColor(hat, 0.3)); ctx.fillStyle = hatGrad; ctx.fillRect(5, 5, 40, 20); ctx.fillRect(0, 20, 50, 15); ctx.fillStyle = 'rgba(225, 245, 254, 0.9)'; ctx.fillRect(10, 23, 30, 10); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(10, 23, 30, 10);
-                    const coatGrad = ctx.createLinearGradient(5, 35, 45, 65); coatGrad.addColorStop(0, coat); coatGrad.addColorStop(1, darkenColor(coat, 0.2)); ctx.fillStyle = coatGrad; ctx.fillRect(5, 35, 40, 30); ctx.fillStyle = coat; ctx.fillRect(20, 25, 10, 10);
-                    const faceGrad = ctx.createRadialGradient(25, 42, 0, 25, 42, 15); faceGrad.addColorStop(0, '#FFE4E1'); faceGrad.addColorStop(1, '#FFCDD2'); ctx.fillStyle = faceGrad; ctx.fillRect(12, 35, 26, 15); ctx.fillStyle = '#000'; ctx.fillRect(17, 39, 3, 3); ctx.fillRect(30, 39, 3, 3);
-                    const pantsGrad = ctx.createLinearGradient(5, 65, 45, 80); pantsGrad.addColorStop(0, pants); pantsGrad.addColorStop(1, darkenColor(pants, 0.3)); ctx.fillStyle = pantsGrad; ctx.fillRect(5, 65, 40, 15);
-                    ctx.fillStyle = '#5D4037'; ctx.fillRect(5, 80 + legOffset, 15, 15); ctx.fillRect(30, 80 - legOffset, 15, 15);
-                    ctx.fillStyle = '#FFCDD2'; const armOffset = Math.sin(p.frame + Math.PI) * 2; ctx.fillRect(2, 45 + armOffset, 8, 20); ctx.fillRect(40, 45 - armOffset, 8, 20); ctx.fillStyle = '#FFF'; ctx.fillRect(2, 65 + armOffset, 8, 8); ctx.fillRect(40, 65 - armOffset, 8, 8);
-                    ctx.restore();
-                };
-
+                // Moved drawPlayer outside to be reusable
                 const loop = (timestamp) => {
                     if (!engine.current.running && gameState !== 'INTRO_CINEMATIC' && gameState !== 'OUTRO_CINEMATIC') return;
                     const eng = engine.current; const dt = Math.min(timestamp - eng.lastTime, 50) / 16.67; eng.lastTime = timestamp;
@@ -339,27 +508,27 @@
 
                 const drawOutro = () => {
                     const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const eng = engine.current; const frame = eng.cinematicTime;
-                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT); grd.addColorStop(0, '#87CEEB'); grd.addColorStop(1, '#E1F5FE'); ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT); ctx.fillStyle = '#2E7D32'; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
+                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT); grd.addColorStop(0, '#4FC3F7'); grd.addColorStop(1, '#E1F5FE'); ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT); ctx.fillStyle = '#388E3C'; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
                     const castle = assetCache['castle']; if(castle) ctx.drawImage(castle, GAME_WIDTH/2 - 150, GAME_HEIGHT - 450);
                     const tree = assetCache['tree']; if (tree) { ctx.drawImage(tree, 100, GAME_HEIGHT - 200, 150, 200); ctx.drawImage(tree, GAME_WIDTH - 250, GAME_HEIGHT - 220, 160, 220); }
                     let pX = 1000; let mX = 600; if (frame < 100) { pX = 1000 - frame; mX = 600 + frame; } else { pX = 900; mX = 700; } const meetY = GAME_HEIGHT - 170;
-                    const mario = eng.player; mario.x = mX; mario.y = meetY + 20; mario.skinColor = { coat: '#FF0000', hat: '#FFFF00', pants: '#0000FF' }; drawPlayer(ctx, mario);
+                    const mario = eng.player; mario.x = mX; mario.y = meetY + 20; mario.skinColor = { coat: '#EF5350', hat: '#FFD600', pants: '#0D47A1' }; drawPlayer(ctx, mario);
                     const princess = assetCache['princess']; if (princess) ctx.drawImage(princess, pX, meetY);
-                    if (frame > 100) { ctx.fillStyle = '#E91E63'; ctx.font = '50px Arial'; ctx.fillText('❤️', (mX+pX)/2 + 25, meetY - 20); ctx.fillStyle = '#FFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse((mX+pX)/2 + 25, meetY - 110, 140, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center'; ctx.fillText("Cảm ơn hoàng tử!", (mX+pX)/2 + 25, meetY - 105); }
+                    if (frame > 100) { ctx.fillStyle = '#E91E63'; ctx.font = '50px Arial'; ctx.fillText('❤️', (mX+pX)/2 + 25, meetY - 20); ctx.fillStyle = '#FFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse((mX+pX)/2 + 25, meetY - 110, 140, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center'; ctx.fillText("Đa tạ Dũng Sĩ!", (mX+pX)/2 + 25, meetY - 105); }
                     const heartImg = assetCache['heart']; if (heartImg) { eng.particles.forEach(p => { ctx.save(); ctx.globalAlpha = Math.max(0, Math.min(1, p.life / 50)); const wobble = Math.sin(performance.now() / 200 + p.x) * 5; ctx.drawImage(heartImg, p.x + wobble, p.y, 30, 30); ctx.restore(); }); }
                 };
 
                 const drawCinematic = () => {
-                    const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const frame = engine.current.cinematicTime;
-                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT); grd.addColorStop(0, '#87CEEB'); grd.addColorStop(1, '#E1F5FE'); ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                    const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const eng = engine.current; const frame = eng.cinematicTime;
+                    const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT); grd.addColorStop(0, '#29B6F6'); grd.addColorStop(1, '#B3E5FC'); ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
                     const mtn = assetCache['mountain']; if (mtn) { ctx.drawImage(mtn, 0, GAME_HEIGHT - 350, 600, 400); ctx.drawImage(mtn, 800, GAME_HEIGHT - 300, 500, 350); }
-                    const groundGrad = ctx.createLinearGradient(0, GAME_HEIGHT - 80, 0, GAME_HEIGHT); groundGrad.addColorStop(0, '#2E7D32'); groundGrad.addColorStop(1, '#1B5E20'); ctx.fillStyle = groundGrad; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
+                    const groundGrad = ctx.createLinearGradient(0, GAME_HEIGHT - 80, 0, GAME_HEIGHT); groundGrad.addColorStop(0, '#388E3C'); groundGrad.addColorStop(1, '#1B5E20'); ctx.fillStyle = groundGrad; ctx.fillRect(0, GAME_HEIGHT - 80, GAME_WIDTH, 80);
                     const castle = assetCache['castle']; if(castle) ctx.drawImage(castle, GAME_WIDTH/2 - 150, GAME_HEIGHT - 450);
                     const tree = assetCache['tree']; const bush = assetCache['bush']; const flower = assetCache['flower']; if (tree) { ctx.drawImage(tree, 100, GAME_HEIGHT - 200, 150, 200); ctx.drawImage(tree, GAME_WIDTH - 200, GAME_HEIGHT - 220, 160, 220); ctx.drawImage(tree, 300, GAME_HEIGHT - 180, 120, 180); } if (bush) { ctx.drawImage(bush, 200, GAME_HEIGHT - 80); ctx.drawImage(bush, GAME_WIDTH - 300, GAME_HEIGHT - 90); ctx.drawImage(bush, GAME_WIDTH/2 - 250, GAME_HEIGHT - 80); } if (flower) { ctx.drawImage(flower, 450, GAME_HEIGHT - 70); ctx.drawImage(flower, GAME_WIDTH - 450, GAME_HEIGHT - 75); }
                     const princess = assetCache['princess']; let pX = GAME_WIDTH/2 - 40; let pY = GAME_HEIGHT - 170; const dragon = assetCache['dragon']; let dX = -400; let dY = 50;
                     if (frame < 150) { pX = GAME_WIDTH/2 - 40; } else if (frame >= 150 && frame < 300) { const progress = Math.min(1, (frame - 150) / 100); dX = -400 + progress * (GAME_WIDTH/2 + 200); dY = 50 + Math.sin(frame/10) * 30; if(frame > 200) ctx.translate(Math.random()*5, Math.random()*5); } else { const progress = (frame - 300) / 200; dX = (GAME_WIDTH/2 - 200) + progress * 1200; dY = 50 - progress * 300; pX = dX + 160; pY = dY + 120; }
                     if (princess) ctx.drawImage(princess, pX, pY); if (dragon) { ctx.save(); ctx.translate(dX, dY); ctx.scale(-1, 1); ctx.drawImage(dragon, -400, 0); if (frame > 200 && frame < 250) { ctx.fillStyle = '#F44336'; ctx.beginPath(); ctx.moveTo(-10, 120); ctx.lineTo(400, 80 + Math.random()*40); ctx.lineTo(400, 160 + Math.random()*40); ctx.fill(); } ctx.restore(); }
-                    if (frame > 250 && frame < 350) { ctx.fillStyle = '#FFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(pX + 100, pY - 50, 120, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center'; ctx.fillText("Hoàng tử, cứu bé!", pX + 100, pY - 45); }
+                    if (frame > 250 && frame < 350) { ctx.fillStyle = '#FFF'; ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(pX + 100, pY - 50, 120, 40, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#000'; ctx.font = 'bold 24px Arial'; ctx.textAlign = 'center'; ctx.fillText("Cứu thiếp với!", pX + 100, pY - 45); }
                     ctx.setTransform(1, 0, 0, 1, 0, 0); 
                 };
 
@@ -379,9 +548,31 @@
                         const bLeft = b.x + 50; const bRight = b.x + b.w - 50; const bTop = b.y + 50; const bBottom = b.y + b.h - 50;
                         if (p.x + p.width > bLeft && p.x < bRight && p.y + p.height > bTop && p.y < bBottom) { if (performance.now() >= p.invulnerableUntil) { if (p.vy > 0 && p.y + p.height < b.y + b.h / 2) { b.hp -= 5; p.vy = -JUMP_POWER * 0.8; createParticles(p.x, p.y + p.height, '#FF0000'); playSound('enemy'); } else { damagePlayer(); } } }
                         for (let i = eng.projectiles.length - 1; i >= 0; i--) { const proj = eng.projectiles[i]; if (proj.x > bLeft && proj.x < bRight && proj.y > bTop && proj.y < bBottom) { b.hp -= 1; eng.projectiles.splice(i, 1); createParticles(proj.x, proj.y, '#00FFFF'); playSound('enemy'); } }
-                        if (eng.enemies.filter(e => !e.dead).length === 0) { const spawnCount = 6; const enemyTypes = ['fire', 'ghost', 'spiky']; for(let i=0; i<spawnCount; i++) { const spawnX = i % 2 === 0 ? -50 - (i*50) : GAME_WIDTH + 50 + (i*50); eng.enemies.push({ x: spawnX, y: GAME_HEIGHT - 120, w: 40, h: 40, vx: (p.x > spawnX ? 1 : -1) * (2 + Math.random() * 2), type: enemyTypes[Math.floor(Math.random() * enemyTypes.length)], limitX: [-500, GAME_WIDTH + 500], dead: false }); } }
-                        if (b.hp <= b.maxHp * 0.5 && !b.trigger50Done) { b.trigger50Done = true; b.phase = 2; setQuestionsAnsweredInLevel(0); setGameState('QUESTION'); eng.running = false; }
-                        if (b.hp <= b.maxHp * 0.3 && b.failedQ2 && !b.trigger30Done) { b.trigger30Done = true; b.phase = 2; setQuestionsAnsweredInLevel(1); setGameState('QUESTION'); eng.running = false; }
+                        if (eng.enemies.filter((e) => !e.dead).length === 0) { const spawnCount = 6; const enemyTypes = ['fire', 'ghost', 'spiky']; for(let i=0; i<spawnCount; i++) { const spawnX = i % 2 === 0 ? -50 - (i*50) : GAME_WIDTH + 50 + (i*50); eng.enemies.push({ x: spawnX, y: GAME_HEIGHT - 120, w: 40, h: 40, vx: (p.x > spawnX ? 1 : -1) * (2 + Math.random() * 2), type: enemyTypes[Math.floor(Math.random() * enemyTypes.length)], limitX: [-500, GAME_WIDTH + 500], dead: false }); } }
+                        
+                        // BOSS PHASE LOGIC
+                        // Phase 1: 50% HP -> 2 Questions (Index 0, 1 of Level 5)
+                        if (b.hp <= b.maxHp * 0.5 && !b.trigger50Done) { 
+                            b.trigger50Done = true; 
+                            b.phase = 1; 
+                            b.correctAnswersBatch = 0; // Reset batch count
+                            setQuestionsAnsweredInLevel(0); // Start Question 1
+                            setGameState('QUESTION'); 
+                            eng.running = false; 
+                        }
+                        
+                        // Phase 2: 30% HP -> 1 Question (Index 2 of Level 5)
+                        // Only trigger if passed phase 1 (boss is alive and fighting)
+                        if (b.hp <= b.maxHp * 0.3 && b.trigger50Done && !b.trigger30Done) { 
+                            b.trigger30Done = true; 
+                            b.phase = 2; 
+                            // Batch count might reset or continue, for logic we just need 1 correct answer here essentially (or cumulative)
+                            // The prompt says "Answer correct 3/3 -> Win".
+                            // So we expect them to have 2 points already from Phase 1.
+                            setQuestionsAnsweredInLevel(2); // Start Question 3
+                            setGameState('QUESTION'); 
+                            eng.running = false; 
+                        }
                     }
                     for (let i = eng.projectiles.length - 1; i >= 0; i--) { const proj = eng.projectiles[i]; proj.x += proj.vx * dt; proj.y += proj.vy * dt; proj.vy += (GRAVITY * 0.5) * dt; proj.rotation += 0.2 * dt; if (proj.y > GAME_HEIGHT || proj.x < eng.camera.x - 100 || proj.x > eng.camera.x + GAME_WIDTH + 100) { eng.projectiles.splice(i, 1); continue; } for (const enemy of eng.enemies) { if (enemy.dead) continue; if (proj.x < enemy.x + enemy.w && proj.x + proj.w > enemy.x && proj.y < enemy.y + enemy.h && proj.y + proj.h > enemy.y) { enemy.dead = true; eng.projectiles.splice(i, 1); createParticles(enemy.x + enemy.w/2, enemy.y + enemy.h/2, '#555'); setScore(s => s + 30); playSound('enemy'); break; } } }
                     for (const enemy of eng.enemies) { if (enemy.dead) continue; enemy.x += enemy.vx * dt; if (enemy.x <= enemy.limitX[0]) { enemy.x = enemy.limitX[0] + 1; enemy.vx = Math.abs(enemy.vx); } else if (enemy.x >= enemy.limitX[1]) { enemy.x = enemy.limitX[1] - 1; enemy.vx = -Math.abs(enemy.vx); } const pLeft = p.x + 10; const pRight = p.x + p.width - 10; const pBottom = p.y + p.height; const pTop = p.y; const eLeft = enemy.x + 5; const eRight = enemy.x + enemy.w - 5; const eTop = enemy.y; const eBottom = enemy.y + enemy.h; if (pRight > eLeft && pLeft < eRight && pBottom > eTop && pTop < eBottom) { if (performance.now() < p.invulnerableUntil) continue; const isFalling = p.vy > 0; const isAbove = pBottom < enemy.y + (enemy.h * 0.5); if (isFalling && isAbove) { const ex = enemy.x + enemy.w/2; const ey = enemy.y + enemy.h/2; enemy.dead = true; p.vy = -JUMP_POWER * 0.7; setScore(s => s + 30); playSound('enemy'); createParticles(ex, ey, '#555'); } else { damagePlayer(); } } }
@@ -398,7 +589,7 @@
 
                 const draw = () => {
                     const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const eng = engine.current;
-                    let bgColors = ["#4FC3F7", "#E1F5FE"]; if (level === 2) bgColors = ['#546E7A', '#37474F']; if (level === 3) bgColors = ['#FF7043', '#3E2723']; if (level === 4) bgColors = ['#1A237E', '#000000']; if (level === 5) bgColors = ['#263238', '#000000'];
+                    let bgColors = ["#4FC3F7", "#E1F5FE"]; if (level === 2) bgColors = ['#455A64', '#263238']; if (level === 3) bgColors = ['#FF7043', '#5D4037']; if (level === 4) bgColors = ['#311B92', '#000000']; if (level === 5) bgColors = ['#263238', '#000000'];
                     const now = performance.now(); const damagedShake = now < eng.player.invulnerableUntil && (now - eng.player.invulnerableUntil + 2000) < 500; const explosionShake = eng.boss?.exploding;
                     if (damagedShake || explosionShake) { ctx.save(); const intensity = explosionShake ? 15 : 10; ctx.translate((Math.random()-0.5)*intensity, (Math.random()-0.5)*intensity); }
                     if (eng.weather.flash > 0) { ctx.fillStyle = `rgba(255, 255, 255, ${eng.weather.flash * 0.5})`; ctx.fillRect(0,0,GAME_WIDTH, GAME_HEIGHT); } else { const grd = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT); grd.addColorStop(0, bgColors[0]); grd.addColorStop(1, bgColors[1]); ctx.fillStyle = grd; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT); }
@@ -408,7 +599,7 @@
                     eng.clouds.forEach(c => { const img = assetCache[c.type]; if (img) ctx.drawImage(img, c.x, c.y, 200 * c.scale, 120 * c.scale); });
                     const brick = assetCache['brick']; if (brick) { eng.platforms.forEach(p => { if (p.x + p.w < eng.camera.x || p.x > eng.camera.x + GAME_WIDTH) return; ctx.drawImage(brick, 0, 0, 100, 100, p.x, p.y, p.w, p.h); }); }
                     eng.decor.forEach(d => { const img = assetCache[d.type]; if (img) { if (d.type === 'flask') ctx.drawImage(img, d.x, d.y - 60); else if (d.type === 'tree') ctx.drawImage(img, d.x, d.y - 140); else ctx.drawImage(img, d.x, d.y - (img.height * 0.8)); } });
-                    if (!eng.boss) { const doorX = eng.goal.x; const doorY = eng.goal.y; const doorW = eng.goal.w; const doorH = eng.goal.h; ctx.fillStyle = '#3E2723'; ctx.fillRect(doorX, doorY, doorW, doorH); const doorGrad = ctx.createLinearGradient(doorX, doorY, doorX, doorY + doorH); doorGrad.addColorStop(0, '#795548'); doorGrad.addColorStop(1, '#4E342E'); ctx.fillStyle = doorGrad; ctx.fillRect(doorX + 10, doorY + 10, doorW - 20, doorH - 10); const glow = 0.5 + Math.sin(Date.now() / 300) * 0.5; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 15 * glow; ctx.fillStyle = '#FFD700'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.fillText('CÂU HỎI', doorX + doorW/2, doorY + 50); ctx.fillText('THỬ THÁCH', doorX + doorW/2, doorY + 80); ctx.shadowBlur = 0; }
+                    if (!eng.boss) { const doorX = eng.goal.x; const doorY = eng.goal.y; const doorW = eng.goal.w; const doorH = eng.goal.h; ctx.fillStyle = '#3E2723'; ctx.fillRect(doorX, doorY, doorW, doorH); const doorGrad = ctx.createLinearGradient(doorX, doorY, doorX, doorY + doorH); doorGrad.addColorStop(0, '#5D4037'); doorGrad.addColorStop(1, '#3E2723'); ctx.fillStyle = doorGrad; ctx.fillRect(doorX + 10, doorY + 10, doorW - 20, doorH - 10); const glow = 0.5 + Math.sin(Date.now() / 300) * 0.5; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 15 * glow; ctx.fillStyle = '#FFD700'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.fillText('CÂU HỎI', doorX + doorW/2, doorY + 50); ctx.fillText('THỬ THÁCH', doorX + doorW/2, doorY + 80); ctx.shadowBlur = 0; }
                     eng.enemies.forEach(e => { if (e.dead || e.x < eng.camera.x - 100 || e.x > eng.camera.x + GAME_WIDTH) return; const img = assetCache['enemy_' + e.type]; if (img) ctx.drawImage(img, e.x, e.y, e.w, e.h); });
                     if (eng.boss && !eng.boss.dead) { const b = eng.boss; if (b.exploding) { if (Math.floor(Date.now()/50)%2===0) { ctx.save(); ctx.translate(b.x + b.w/2, b.y + b.h/2); ctx.scale(-1, 1); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#FFF'; ctx.beginPath(); ctx.ellipse(0, 0, 150, 100, 0, 0, Math.PI*2); ctx.fill(); ctx.restore(); } else { const bImg = assetCache['dragon']; if (bImg) { ctx.save(); ctx.translate(b.x + b.w/2, b.y + b.h/2); ctx.scale(-1, 1); ctx.drawImage(bImg, -b.w/2 - 50, -b.h/2 - 50, b.w + 100, b.h + 100); ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = 'rgba(255,50,0,0.6)'; ctx.fillRect(-b.w/2 - 50, -b.h/2 - 50, b.w + 100, b.h + 100); ctx.restore(); } } } else { const bImg = assetCache['dragon']; if (bImg) { ctx.save(); ctx.translate(b.x + b.w/2, b.y + b.h/2); ctx.scale(-1, 1); ctx.drawImage(bImg, -b.w/2 - 50, -b.h/2 - 50, b.w + 100, b.h + 100); if (b.hp <= b.maxHp/2 && Math.floor(Date.now()/100)%2===0) { ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = 'rgba(255,0,0,0.3)'; ctx.fillRect(-b.w/2 - 50, -b.h/2 - 50, b.w + 100, b.h + 100); } ctx.restore(); } } }
                     eng.critters.forEach(c => { const img = assetCache[c.type]; if (img) ctx.drawImage(img, c.x, c.y); });
@@ -432,178 +623,374 @@
                 const kd = (e) => handleKey(e, true); const ku = (e) => handleKey(e, false); window.addEventListener('keydown', kd); window.addEventListener('keyup', ku); return () => { window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); };
             }, []);
 
-            const handleTouch = (key, down) => (e) => { e.preventDefault(); engine.current.keys[key] = down; };
+            const handleTouch = (key, down) => (e) => { e.preventDefault(); (engine.current.keys)[key] = down; };
             const handleStartClick = () => { engine.current.cinematicTime = 0; setGameState('INTRO_CINEMATIC'); };
             const handleInstructionsDone = () => { setGameState('TRANSITION'); };
             const startLevel = () => { initLevel(level); setGameState('PLAYING'); };
+            
+            // NEW ANSWER HANDLING LOGIC
             const handleAnswer = () => {
-                if (selectedOption === null) return;
-                const qIndex = (level - 1) * 2 + questionsAnsweredInLevel; const correct = QUESTIONS[qIndex].correct; const isBossFight = level === 5 && engine.current.boss;
-                if (selectedOption === correct) {
+                const currentQuestions = LEVEL_QUESTS[level - 1];
+                if (!currentQuestions) return;
+                const currentQ = currentQuestions[questionsAnsweredInLevel];
+                const isBossFight = level === 5 && engine.current.boss;
+
+                let isCorrect = false;
+
+                if (currentQ.type === 'mcq') {
+                    if (selectedOption === currentQ.correct) isCorrect = true;
+                } else if (currentQ.type === 'tf') {
+                    const correctArr = currentQ.correct;
+                    isCorrect = tfSelections.every((val, idx) => val === correctArr[idx]);
+                }
+
+                if (isCorrect) {
                     setFeedback('correct'); playSound('win'); setScore(s => s + 50);
+                    
                     setTimeout(() => {
-                        setFeedback(null); setSelectedOption(null); const newQAnswered = questionsAnsweredInLevel + 1; setQuestionsAnsweredInLevel(newQAnswered);
-                        if (isBossFight) { if (newQAnswered === 1) return; if (newQAnswered === 2) { const eng = engine.current; if (eng.boss) { eng.boss.exploding = true; eng.boss.phase = 1; } setGameState('PLAYING'); return; } }
-                        if (newQAnswered >= 2) { setLevel(l => l + 1); setQuestionsAnsweredInLevel(0); setGameState('TRANSITION'); }
+                        setFeedback(null); setSelectedOption(null); setTfSelections([]);
+                        
+                        if (isBossFight) {
+                            const eng = engine.current;
+                            const b = eng.boss;
+                            b.correctAnswersBatch += 1; // Increment correct count for this phase
+
+                            // Logic: Trigger 50% Phase (2 questions: index 0 and 1)
+                            if (b.phase === 1) {
+                                // We are at question index 0 or 1
+                                if (questionsAnsweredInLevel === 0) {
+                                    // Correct Q1. Move to Q2.
+                                    setQuestionsAnsweredInLevel(1);
+                                    // Need to stay in QUESTION state, just clear feedback (done above)
+                                } else if (questionsAnsweredInLevel === 1) {
+                                    // Correct Q2.
+                                    // Check if we got 2 correct total
+                                    if (b.correctAnswersBatch === 2) {
+                                        // "Trả lời đúng 2 trên 3 câu: Rồng giảm máu xuống 40%"
+                                        b.hp = b.maxHp * 0.4;
+                                        setGameState('PLAYING'); // Resume fight
+                                        eng.running = true;
+                                    } else {
+                                        // Should ideally have failed already if Q1 was wrong, but for safety:
+                                        setFeedback('wrong'); playSound('lose'); 
+                                        setTimeout(() => { setFeedback(null); setGameState('PLAYING'); resetPlayer(); }, 1000);
+                                    }
+                                }
+                            } else if (b.phase === 2) {
+                                // Logic: Trigger 30% Phase (1 question: index 2)
+                                // "Nếu trả lời đúng rồng bị tiêu diệt" (Total 3/3 implied)
+                                b.exploding = true;
+                                setGameState('PLAYING');
+                                eng.running = true;
+                            }
+                        } else {
+                            // Normal Levels
+                            const newQAnswered = questionsAnsweredInLevel + 1;
+                            if (newQAnswered >= currentQuestions.length) {
+                                setLevel(l => l + 1); setQuestionsAnsweredInLevel(0); setGameState('TRANSITION');
+                            } else {
+                                setQuestionsAnsweredInLevel(newQAnswered);
+                            }
+                        }
                     }, 1000);
                 } else {
+                    // WRONG ANSWER
+                    setFeedback('wrong'); playSound('lose');
                     const eng = engine.current;
-                    if (isBossFight) {
-                        if (questionsAnsweredInLevel === 0) { setFeedback('wrong'); playSound('lose'); setTimeout(() => { setFeedback(null); setSelectedOption(null); setGameState('PLAYING'); resetPlayer(); }, 1500); } 
-                        else if (questionsAnsweredInLevel === 1) {
-                            if (!eng.boss?.failedQ2) { setFeedback('wrong_retry'); playSound('enemy'); setTimeout(() => { if (eng.boss) { eng.boss.hp = eng.boss.maxHp * 0.4; eng.boss.phase = 1; eng.boss.failedQ2 = true; } setFeedback(null); setSelectedOption(null); setGameState('PLAYING'); }, 2000); } 
-                            else { setFeedback('wrong'); playSound('lose'); setTimeout(() => { setFeedback(null); setSelectedOption(null); setGameState('PLAYING'); resetPlayer(); }, 1500); }
+                    
+                    setTimeout(() => {
+                        setFeedback(null); setSelectedOption(null); setTfSelections([]);
+                        
+                        if (isBossFight) {
+                            // "Nếu trả lời đúng 1/3 ... Bắt đầu giết rồng lại từ đầu"
+                            // "Nếu trả lời sai thì quay trở lại giết rồng từ đầu"
+                            setGameState('PLAYING'); 
+                            resetPlayer(); 
+                        } else {
+                            // Normal Level: Send back to start
+                            setGameState('PLAYING'); 
+                            eng.player.x = eng.goal.x - 200; eng.player.y = eng.goal.y - 100; eng.player.vx = 0; eng.player.vy = 0; 
                         }
-                    } else { setFeedback('wrong'); playSound('lose'); setTimeout(() => { setFeedback(null); setSelectedOption(null); setGameState('PLAYING'); eng.player.x = eng.goal.x - 200; eng.player.y = eng.goal.y - 100; eng.player.vx = 0; eng.player.vy = 0; }, 1500); }
+                    }, 1500);
                 }
             };
-            const currentQIndex = (level - 1) * 2 + questionsAnsweredInLevel;
+
+            const currentQuestions = LEVEL_QUESTS[level - 1] || [];
+            const currentQ = currentQuestions[questionsAnsweredInLevel];
 
             return (
-                <div className="w-full h-full flex flex-col items-center justify-center bg-black overflow-hidden relative touch-none select-none">
-                    {/* GAME CONTAINER WRAPPER */}
-                    <div className={`relative flex-shrink-0 transition-all duration-300 ease-out ${isPortrait ? 'w-full aspect-video bg-neutral-900 border-b-2 border-neutral-700' : 'w-full h-full flex items-center justify-center'}`}>
-                        <canvas ref={canvasRef} width={GAME_WIDTH} height={GAME_HEIGHT} className={`${isPortrait ? 'w-full h-full' : 'max-w-full max-h-full aspect-video'} object-contain shadow-2xl`} />
+                <div className="w-full h-screen bg-black relative overflow-hidden select-none font-sans flex flex-col text-white">
+                    {/* GAME CONTAINER (CANVAS) */}
+                    <div className={`relative bg-neutral-900 flex-shrink-0 transition-all duration-300 ${isPortrait ? 'w-full aspect-video shadow-lg' : 'w-full h-full'} touch-none`}>
+                        <canvas 
+                            ref={canvasRef} 
+                            width={GAME_WIDTH} 
+                            height={GAME_HEIGHT} 
+                            className="w-full h-full object-contain"
+                        />
 
-                        {/* LANDSCAPE CONTROLS OVERLAY */}
+                        {/* LANDSCAPE CONTROLS (OVERLAY) */}
                         {!isPortrait && gameState === 'PLAYING' && (
-                            <>
-                                <div className="absolute top-0 left-0 w-full min-h-[60px] flex items-start justify-between p-4 z-10 pointer-events-none font-bold text-white text-base md:text-xl">
-                                    <div className="flex items-center gap-2 bg-black/40 px-4 py-1 rounded-full border border-white/20 backdrop-blur-sm">👤 {playerName}</div>
-                                    <div className="flex items-center gap-2 bg-black/40 px-4 py-1 rounded-full border border-white/20 backdrop-blur-sm">⭐ {score}</div>
-                                    <div className="flex items-center gap-2 bg-black/40 px-4 py-1 rounded-full border border-white/20 backdrop-blur-sm">🚩 {level}/5</div>
-                                    <div className="flex gap-2 pointer-events-auto">
-                                        <div className="bg-black/40 px-3 py-1 rounded-full border border-white/20 cursor-pointer" onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? '🔊' : '🔇'}</div>
-                                        <div className="bg-black/40 px-3 py-1 rounded-full border border-white/20 cursor-pointer" onClick={toggleFullscreen}>{isFullscreen ? '🗗' : '⛶'}</div>
+                            <div className="absolute inset-0 pointer-events-none z-10">
+                                {/* Top Stats */}
+                                <div className="absolute top-0 left-0 w-full p-2 md:p-4 flex justify-between items-start font-bold drop-shadow-md">
+                                    <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-lg">
+                                        <span className="text-yellow-400 text-xl">👤</span> <span className="text-lg text-cyan-200">{playerName}</span>
+                                    </div>
+                                    <div className="flex gap-2 text-white">
+                                        <div className="bg-black/40 px-3 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-lg text-yellow-300">⭐ {score}</div>
+                                        <div className="bg-black/40 px-3 py-2 rounded-full backdrop-blur-md border border-white/10 shadow-lg text-green-300">🚩 {level}/5</div>
+                                        <div className="pointer-events-auto bg-black/40 px-3 py-2 rounded-full backdrop-blur-md border border-white/10 cursor-pointer hover:bg-white/20 transition-colors" onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? '🔊' : '🔇'}</div>
+                                        <div className="pointer-events-auto bg-black/40 px-3 py-2 rounded-full backdrop-blur-md border border-white/10 cursor-pointer hover:bg-white/20 transition-colors hidden md:block" onClick={toggleFullscreen}>{document.fullscreenElement ? '🗗' : '⛶'}</div>
                                     </div>
                                 </div>
-                                <div className="absolute bottom-8 left-8 flex gap-5 z-20">
-                                    <div className="w-20 h-20 rounded-full bg-white/20 border-2 border-white/50 flex justify-center items-center text-4xl backdrop-blur-sm active:bg-white/40 touch-manipulation" onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)} onMouseDown={handleTouch('left', true)} onMouseUp={handleTouch('left', false)}>←</div>
-                                    <div className="w-20 h-20 rounded-full bg-white/20 border-2 border-white/50 flex justify-center items-center text-4xl backdrop-blur-sm active:bg-white/40 touch-manipulation" onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)} onMouseDown={handleTouch('right', true)} onMouseUp={handleTouch('right', false)}>→</div>
-                                </div>
-                                <div className="absolute bottom-8 right-8 flex gap-4 z-20">
-                                     <div className="w-20 h-20 rounded-full bg-blue-500/40 border-2 border-white/50 flex justify-center items-center text-2xl font-bold backdrop-blur-sm active:bg-blue-500/60 touch-manipulation" onTouchStart={handleTouch('shoot', true)} onTouchEnd={handleTouch('shoot', false)} onMouseDown={handleTouch('shoot', true)} onMouseUp={handleTouch('shoot', false)}>💥</div>
-                                    <div className="w-20 h-20 rounded-full bg-red-500/40 border-2 border-white/50 flex justify-center items-center text-4xl backdrop-blur-sm active:bg-red-500/60 touch-manipulation" onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)} onMouseDown={handleTouch('up', true)} onMouseUp={handleTouch('up', false)}>↑</div>
-                                </div>
-                            </>
-                        )}
-                        
-                        {/* START SCREEN - Standalone for fullscreen background */}
-                        {gameState === 'START' && (
-                            <div className="absolute inset-0 z-50 flex flex-col justify-center items-center overflow-hidden">
-                                {/* Background Image/Canvas */}
-                                <div className="absolute inset-0 z-0">
-                                     <canvas ref={titleRef} width={1600} height={900} className="w-full h-full object-cover" />
-                                     {/* Gradient overlay for text readability */}
-                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+
+                                {/* Floating Buttons */}
+                                <div className="absolute bottom-8 left-8 flex gap-6 pointer-events-auto">
+                                    <button className="w-24 h-24 rounded-full bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-5xl transition-transform active:scale-90 touch-manipulation shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                        onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)} onMouseDown={handleTouch('left', true)} onMouseUp={handleTouch('left', false)}>⬅️</button>
+                                    <button className="w-24 h-24 rounded-full bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 flex items-center justify-center text-5xl transition-transform active:scale-90 touch-manipulation shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+                                        onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)} onMouseDown={handleTouch('right', true)} onMouseUp={handleTouch('right', false)}>➡️</button>
                                 </div>
 
-                                {/* Content */}
-                                <div className="z-10 flex flex-col items-center w-full max-w-md p-4 animate-pop">
-                                    <h1 className="font-[Coiny] text-5xl md:text-7xl text-yellow-400 text-center drop-shadow-[4px_4px_0_#B71C1C] mb-8 tracking-wider">
-                                        MARIO<br/>DŨNG SĨ HÓA HỌC
-                                    </h1>
-                                    <div className="bg-black/60 p-8 rounded-2xl backdrop-blur-md border-2 border-yellow-400 shadow-[0_0_30px_rgba(255,215,0,0.4)] w-full flex flex-col items-center">
-                                        <input 
-                                            type="text" 
-                                            value={playerName} 
-                                            onFocus={() => { if(playerName === "Người chơi") setPlayerName("") }}
-                                            onChange={e => setPlayerName(e.target.value)} 
-                                            className="text-2xl p-4 text-center rounded-xl border border-white/30 w-full bg-white/10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:bg-white/20 transition-all mb-6"
-                                            maxLength={12} 
-                                        />
-                                        <button 
-                                            className="w-full py-4 text-2xl font-bold text-white bg-gradient-to-b from-red-500 to-red-700 rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-transform border border-red-400" 
-                                            onClick={handleStartClick}
-                                        >
-                                            BẮT ĐẦU
-                                        </button>
-                                    </div>
-                                    <p className="mt-6 text-xl font-bold text-white drop-shadow-md opacity-90">Nhập tên và nhấn Bắt Đầu</p>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {/* OTHER MODALS */}
-                        {gameState !== 'PLAYING' && gameState !== 'START' && gameState !== 'INTRO_CINEMATIC' && gameState !== 'OUTRO_CINEMATIC' && (
-                            <div className="absolute inset-0 z-50 overflow-y-auto bg-black/90 backdrop-blur-md custom-scroll flex justify-center items-start">
-                                <div className="w-full max-w-4xl min-h-full md:min-h-min md:my-auto p-4 md:p-8 flex flex-col items-center animate-pop">
-                                    {/* INSTRUCTIONS */}
-                                    {gameState === 'INSTRUCTIONS' && (
-                                        <div className="bg-neutral-800/90 p-6 md:p-8 rounded-2xl border border-yellow-400/50 text-white w-full">
-                                            <h2 className="text-yellow-400 text-2xl md:text-4xl mb-6 font-[Coiny] text-center">HƯỚNG DẪN</h2>
-                                            <div className="mb-8 bg-black/30 p-4 rounded-xl">
-                                                <h3 className="text-green-400 font-bold mb-2 text-lg">📖 Nhiệm Vụ</h3>
-                                                <p className="leading-relaxed text-neutral-300">Công chúa Peach bị bắt cóc. Vượt qua 5 màn chơi và trả lời câu hỏi hóa học để giải cứu nàng!</p>
-                                            </div>
-                                            <div className="grid grid-cols-3 gap-4 border-t border-neutral-600 pt-6 text-center">
-                                                <div><div className="text-3xl mb-2">⬅️ ➡️</div><div className="text-sky-300 text-sm font-bold">DI CHUYỂN</div></div>
-                                                <div><div className="text-3xl mb-2">⬆️</div><div className="text-red-400 text-sm font-bold">NHẢY</div></div>
-                                                <div><div className="text-3xl mb-2">💥</div><div className="text-blue-400 text-sm font-bold">BẮN</div></div>
-                                            </div>
-                                            <button className="w-full mt-8 py-3 bg-yellow-500 text-black font-bold text-xl rounded-xl hover:bg-yellow-400" onClick={handleInstructionsDone}>ĐÃ HIỂU!</button>
-                                        </div>
-                                    )}
-
-                                    {/* TRANSITION */}
-                                    {gameState === 'TRANSITION' && (
-                                        <div className="text-center w-full max-w-2xl">
-                                            <h1 className="text-3xl md:text-5xl text-yellow-400 font-[Coiny] mb-6 drop-shadow-md">{STORY_TEXTS[level-1].title}</h1>
-                                            <div className="bg-neutral-800/80 p-6 rounded-xl text-lg md:text-2xl text-white mb-8 border border-white/10 whitespace-pre-line leading-relaxed">{STORY_TEXTS[level-1].text}</div>
-                                            <button className="px-12 py-4 bg-green-600 text-white font-bold text-2xl rounded-full shadow-lg hover:bg-green-500" onClick={startLevel}>TIẾP TỤC</button>
-                                        </div>
-                                    )}
-
-                                    {/* QUESTION MODAL */}
-                                    {gameState === 'QUESTION' && (
-                                        <div className="bg-neutral-900 border-2 border-yellow-500 shadow-2xl rounded-2xl p-6 md:p-8 w-full text-white">
-                                            <div className="flex justify-between items-center mb-6 pb-4 border-b border-neutral-700">
-                                                <h2 className="text-yellow-400 text-xl md:text-2xl font-bold">Thử Thách Hóa Học</h2>
-                                                <span className="text-neutral-400">Câu {questionsAnsweredInLevel + 1}/2</span>
-                                            </div>
-                                            <p className="text-lg md:text-xl font-bold mb-6 leading-relaxed">{QUESTIONS[currentQIndex].text}</p>
-                                            <div className="space-y-3 mb-6">
-                                                {QUESTIONS[currentQIndex].options.map((opt, idx) => (
-                                                    <div key={idx} onClick={() => !feedback && setSelectedOption(idx)} className={`p-4 rounded-xl border cursor-pointer transition-all ${selectedOption === idx ? 'bg-yellow-500/20 border-yellow-400 text-yellow-100' : 'bg-neutral-800 border-neutral-700 hover:bg-neutral-700'} ${feedback?.includes('correct') && idx === QUESTIONS[currentQIndex].correct ? '!bg-green-600/30 !border-green-500' : ''} ${feedback?.includes('wrong') && idx === selectedOption ? '!bg-red-600/30 !border-red-500' : ''}`}>{opt}</div>
-                                                ))}
-                                            </div>
-                                            {!feedback ? <button className="w-full py-4 bg-blue-600 rounded-xl font-bold text-xl hover:bg-blue-500" onClick={handleAnswer}>TRẢ LỜI</button> : <div className={`p-4 rounded-xl text-center font-bold text-lg ${feedback === 'correct' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>{feedback === 'correct' ? 'CHÍNH XÁC!' : 'SAI RỒI!'}</div>}
-                                        </div>
-                                    )}
-
-                                    {/* END SCREEN */}
-                                    {gameState === 'END' && (
-                                        <div className="text-center w-full max-w-xl">
-                                            <h1 className="text-5xl md:text-7xl text-yellow-400 font-[Coiny] mb-8">CHIẾN THẮNG!</h1>
-                                            <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20 mb-8">
-                                                <p className="text-2xl text-white mb-2">Chúc mừng <b>{playerName}</b></p>
-                                                <p className="text-neutral-300 text-xl">Đã giải cứu công chúa Peach!</p>
-                                                <div className="text-5xl font-bold text-green-400 mt-6">{score} ĐIỂM</div>
-                                            </div>
-                                            <button className="px-10 py-4 bg-red-600 text-white font-bold text-xl rounded-full hover:bg-red-500" onClick={() => { setLevel(1); setScore(0); setQuestionsAnsweredInLevel(0); setGameState('START'); }}>CHƠI LẠI</button>
-                                        </div>
-                                    )}
+                                <div className="absolute bottom-8 right-8 flex gap-6 pointer-events-auto">
+                                    <button className="w-24 h-24 rounded-full bg-cyan-500/30 border border-cyan-400/50 backdrop-blur-md hover:bg-cyan-500/50 flex items-center justify-center text-4xl transition-transform active:scale-90 touch-manipulation shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+                                        onTouchStart={handleTouch('shoot', true)} onTouchEnd={handleTouch('shoot', false)} onMouseDown={handleTouch('shoot', true)} onMouseUp={handleTouch('shoot', false)}>💥</button>
+                                    <button className="w-24 h-24 rounded-full bg-pink-500/30 border border-pink-400/50 backdrop-blur-md hover:bg-pink-500/50 flex items-center justify-center text-5xl transition-transform active:scale-90 touch-manipulation shadow-[0_0_30px_rgba(236,72,153,0.4)]"
+                                        onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)} onMouseDown={handleTouch('up', true)} onMouseUp={handleTouch('up', false)}>⬆️</button>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* PORTRAIT MODE CONTROLS */}
+                    {/* PORTRAIT CONTROLS */}
                     {isPortrait && gameState === 'PLAYING' && (
-                        <div className="flex-1 w-full bg-neutral-900 border-t border-neutral-700 p-6 flex flex-col justify-center">
-                            <div className="flex justify-between items-center max-w-md mx-auto w-full">
-                                <div className="flex gap-4">
-                                    <div className="w-20 h-20 bg-neutral-700 rounded-full flex justify-center items-center text-4xl shadow-lg active:bg-neutral-600 active:scale-95 transition-all" onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)} onMouseDown={handleTouch('left', true)} onMouseUp={handleTouch('left', false)}>⬅️</div>
-                                    <div className="w-20 h-20 bg-neutral-700 rounded-full flex justify-center items-center text-4xl shadow-lg active:bg-neutral-600 active:scale-95 transition-all" onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)} onMouseDown={handleTouch('right', true)} onMouseUp={handleTouch('right', false)}>➡️</div>
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="w-20 h-20 bg-blue-600/80 rounded-full flex justify-center items-center text-3xl shadow-lg border-b-4 border-blue-800 active:border-b-0 active:translate-y-1 transition-all" onTouchStart={handleTouch('shoot', true)} onTouchEnd={handleTouch('shoot', false)} onMouseDown={handleTouch('shoot', true)} onMouseUp={handleTouch('shoot', false)}>💥</div>
-                                    <div className="w-20 h-20 bg-red-600/80 rounded-full flex justify-center items-center text-4xl shadow-lg border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition-all" onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)} onMouseDown={handleTouch('up', true)} onMouseUp={handleTouch('up', false)}>⬆️</div>
+                        <div className="flex-1 bg-neutral-900 border-t border-neutral-800 relative p-4 flex flex-col justify-between shadow-[0_-5px_20px_rgba(0,0,0,0.5)] z-20 touch-none">
+                            <div className="flex justify-between items-center text-white mb-2 text-sm font-medium opacity-90">
+                                <div>👤 <span className="text-cyan-300">{playerName}</span></div>
+                                <div className="flex gap-3">
+                                    <span className="text-yellow-300">⭐ {score}</span>
+                                    <span className="text-green-300">🚩 {level}/5</span>
+                                    <span onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? '🔊' : '🔇'}</span>
                                 </div>
                             </div>
-                            <div className="mt-6 flex justify-center gap-6 text-white text-sm font-bold opacity-70">
-                                <div onClick={() => setSoundEnabled(!soundEnabled)}>{soundEnabled ? '🔊 ÂM THANH' : '🔇 TẮT TIẾNG'}</div>
-                                <div>⭐ {score} ĐIỂM</div>
+
+                            <div className="flex justify-between items-center h-full pb-2 px-2">
+                                <div className="flex gap-4">
+                                    <button className="w-20 h-20 rounded-full bg-neutral-800 border border-neutral-600 active:bg-neutral-700 flex items-center justify-center text-3xl shadow-lg active:scale-95 transition-all touch-manipulation"
+                                        onTouchStart={handleTouch('left', true)} onTouchEnd={handleTouch('left', false)} onMouseDown={handleTouch('left', true)} onMouseUp={handleTouch('left', false)}>⬅️</button>
+                                    <button className="w-20 h-20 rounded-full bg-neutral-800 border border-neutral-600 active:bg-neutral-700 flex items-center justify-center text-3xl shadow-lg active:scale-95 transition-all touch-manipulation"
+                                        onTouchStart={handleTouch('right', true)} onTouchEnd={handleTouch('right', false)} onMouseDown={handleTouch('right', true)} onMouseUp={handleTouch('right', false)}>➡️</button>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button className="w-20 h-20 rounded-full bg-cyan-900/50 border border-cyan-500 active:bg-cyan-800 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(6,182,212,0.3)] active:scale-95 transition-all touch-manipulation"
+                                        onTouchStart={handleTouch('shoot', true)} onTouchEnd={handleTouch('shoot', false)} onMouseDown={handleTouch('shoot', true)} onMouseUp={handleTouch('shoot', false)}>💥</button>
+                                    <button className="w-20 h-20 rounded-full bg-pink-900/50 border border-pink-500 active:bg-pink-800 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(236,72,153,0.3)] active:scale-95 transition-all touch-manipulation"
+                                        onTouchStart={handleTouch('up', true)} onTouchEnd={handleTouch('up', false)} onMouseDown={handleTouch('up', true)} onMouseUp={handleTouch('up', false)}>⬆️</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* START SCREEN */}
+                    {gameState === 'START' && (
+                        <div className="absolute inset-0 z-50 flex items-center justify-center overflow-hidden">
+                            <div className="absolute inset-0">
+                                    <canvas ref={titleRef} width={1600} height={900} className="w-full h-full object-cover opacity-80" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/20"></div>
+                            </div>
+                            <div className="z-10 w-full max-w-md p-8 flex flex-col items-center text-center mt-20 md:mt-32">
+                                <h1 className="font-[Coiny] text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-300 via-orange-500 to-red-600 drop-shadow-[0_4px_0_#4a0404] mb-2 tracking-wide animate-pulse filter">MARIO</h1>
+                                <h2 className="font-bold text-2xl md:text-4xl text-cyan-300 mb-8 drop-shadow-[0_0_10px_rgba(6,182,212,0.8)] uppercase tracking-widest">Dũng Sĩ Hóa Học</h2>
+                                
+                                <div className="w-full bg-black/40 backdrop-blur-xl p-8 rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] transform transition-transform hover:scale-[1.01]">
+                                    <input 
+                                        type="text" 
+                                        value={playerName} 
+                                        onFocus={() => { if(playerName === "Người chơi") setPlayerName("") }}
+                                        onChange={e => setPlayerName(e.target.value)} 
+                                        className="w-full text-xl p-4 rounded-xl bg-white/5 text-white border border-white/20 focus:border-yellow-400 focus:bg-white/10 outline-none mb-6 text-center font-bold tracking-wider placeholder-gray-500 transition-all"
+                                        maxLength={12} 
+                                    />
+                                    <button 
+                                        className="w-full py-4 text-2xl font-bold text-white bg-gradient-to-r from-red-600 to-orange-600 rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.5)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)] hover:scale-105 active:scale-95 transition-all animate-heartbeat border border-red-400/50" 
+                                        onClick={handleStartClick}
+                                    >
+                                        BẮT ĐẦU
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* INSTRUCTIONS */}
+                    {gameState === 'INSTRUCTIONS' && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-start pt-24 bg-black/80 backdrop-blur-xl p-4 overflow-y-auto custom-scroll">
+                            <div className="w-full max-w-2xl bg-neutral-900/90 border border-yellow-500/30 p-6 md:p-8 rounded-3xl shadow-[0_0_50px_rgba(234,179,8,0.1)] flex flex-col relative overflow-hidden flex-shrink-0">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+                                <h2 className="text-2xl md:text-4xl text-yellow-400 font-[Coiny] text-center mb-6 drop-shadow-lg">📜 SỔ TAY DŨNG SĨ</h2>
+                                
+                                <div className="space-y-6 text-neutral-200 leading-relaxed">
+                                    <div className="bg-neutral-800/50 p-5 rounded-2xl border border-white/5 hover:border-green-500/50 transition-colors">
+                                        <h3 className="text-green-400 font-bold text-xl mb-2 flex items-center gap-2">👑 Sứ Mệnh</h3>
+                                        <p className="text-sm md:text-base opacity-80">Công chúa Nguyên Tử bị Rồng Hóa Học bắt cóc! Hãy vượt qua 5 màn chơi và dùng kiến thức Hóa Học để giải cứu nàng.</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-neutral-800/50 p-4 rounded-2xl border border-white/5 hover:border-blue-500/50 transition-colors">
+                                            <div className="text-blue-400 font-bold text-base mb-3">Di Chuyển</div>
+                                            <div className="text-xs md:text-sm flex flex-col gap-2 opacity-80">
+                                                <span>⬅️ Trái | ➡️ Phải</span>
+                                                <span>⬆️ Nhảy (Giữ để nhảy cao)</span>
+                                            </div>
+                                        </div>
+                                        <div className="bg-neutral-800/50 p-4 rounded-2xl border border-white/5 hover:border-red-500/50 transition-colors">
+                                            <div className="text-red-400 font-bold text-base mb-3">Chiến Đấu</div>
+                                            <div className="text-xs md:text-sm flex flex-col gap-2 opacity-80">
+                                                <span>💥 Bắn đạn năng lượng</span>
+                                                <span>Đạp lên đầu quái vật</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-neutral-800/50 p-5 rounded-2xl border border-white/5 hover:border-purple-500/50 transition-colors">
+                                        <h3 className="text-purple-400 font-bold text-xl mb-2 flex items-center gap-2">🧠 Trí Tuệ Là Sức Mạnh</h3>
+                                        <p className="text-sm md:text-base opacity-80">Trả lời đúng các câu hỏi Hóa học (Trắc nghiệm & Đúng/Sai) để tiêu diệt Boss và qua màn!</p>
+                                    </div>
+                                </div>
+                                
+                                <button className="w-full mt-8 py-4 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xl rounded-xl transition-transform hover:scale-[1.02] shadow-lg" onClick={handleInstructionsDone}>TÔI ĐÃ SẴN SÀNG!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TRANSITION */}
+                    {gameState === 'TRANSITION' && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-start bg-black/95 p-6 pt-32 overflow-y-auto custom-scroll">
+                            <div className="w-full max-w-3xl flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
+                                <h1 className="text-lg md:text-2xl text-yellow-400 font-[Coiny] mb-8 drop-shadow-[0_4px_0_#a16207]">{STORY_TEXTS[level-1].title}</h1>
+                                <div className="bg-neutral-900/80 p-8 rounded-3xl border border-white/10 shadow-[0_0_60px_rgba(0,0,0,0.8)] w-full mb-10 relative overflow-hidden backdrop-blur-md">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-cyan-500 to-transparent opacity-70"></div>
+                                    <div className="absolute top-0 right-0 w-1 h-full bg-gradient-to-b from-transparent via-pink-500 to-transparent opacity-70"></div>
+                                    <p className="text-lg md:text-2xl text-neutral-200 whitespace-pre-line leading-relaxed font-medium">{STORY_TEXTS[level-1].text}</p>
+                                </div>
+                                <button className="px-16 py-5 bg-gradient-to-r from-green-600 to-teal-600 text-white font-bold text-2xl md:text-3xl rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:scale-105 transition-transform border border-green-400/30" onClick={startLevel}>TIẾN LÊN ▶</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* QUESTION MODAL (Refined UI) */}
+                    {gameState === 'QUESTION' && currentQ && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-start bg-black/80 backdrop-blur-xl p-4 pt-24 overflow-y-auto custom-scroll">
+                            <div className="w-full max-w-5xl bg-neutral-900 border border-white/10 rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col relative flex-shrink-0 mb-8">
+                                {/* Header */}
+                                <div className="bg-gradient-to-r from-neutral-800 to-neutral-900 p-6 md:p-8 border-b border-white/5 flex justify-between items-center relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-grid-white/[0.05]"></div>
+                                    <div className="flex items-center gap-4 relative z-10">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg transform rotate-3">💡</div>
+                                        <h2 className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 text-base md:text-xl font-bold font-[Coiny]">Thử thách trí tuệ</h2>
+                                    </div>
+                                    <span className="text-cyan-400 font-mono bg-cyan-950/50 px-4 py-2 rounded-lg border border-cyan-500/30 relative z-10 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
+                                        {currentQ.type === 'tf' ? 'Đúng / Sai' : `Trắc nghiệm`}
+                                    </span>
+                                </div>
+
+                                {/* Body */}
+                                <div className="p-6 md:p-10 bg-neutral-900/50">
+                                    <p className="text-lg md:text-2xl text-white font-medium mb-8 leading-relaxed whitespace-pre-line">{currentQ.text}</p>
+                                    
+                                    {/* MULTIPLE CHOICE UI */}
+                                    {currentQ.type === 'mcq' && currentQ.options && (
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {currentQ.options.map((opt, idx) => (
+                                                <div 
+                                                    key={idx} 
+                                                    onClick={() => !feedback && setSelectedOption(idx)} 
+                                                    className={`
+                                                        p-5 md:p-6 rounded-2xl border cursor-pointer transition-all text-base md:text-lg font-medium relative overflow-hidden group shadow-md
+                                                        ${selectedOption === idx 
+                                                            ? 'bg-yellow-500/10 border-yellow-500 text-yellow-100 shadow-[0_0_20px_rgba(234,179,8,0.1)]' 
+                                                            : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-750 hover:border-neutral-500 hover:text-white'}
+                                                        ${feedback?.includes('correct') && idx === currentQ.correct ? '!bg-green-600/20 !border-green-400 !text-green-100 !shadow-[0_0_20px_rgba(34,197,94,0.3)]' : ''}
+                                                        ${feedback?.includes('wrong') && idx === selectedOption ? '!bg-red-600/20 !border-red-400 !text-red-100' : ''}
+                                                    `}
+                                                >
+                                                    <div className={`absolute left-0 top-0 h-full w-1.5 transition-all duration-300 ${selectedOption === idx ? 'bg-yellow-500' : 'bg-transparent group-hover:bg-neutral-600'}`}></div>
+                                                    <span className="pl-2">{opt}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* TRUE / FALSE UI */}
+                                    {currentQ.type === 'tf' && currentQ.items && (
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {currentQ.items.map((item, idx) => (
+                                                <div key={idx} className="bg-neutral-800/50 border border-neutral-700 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-neutral-600 transition-colors">
+                                                    <span className="text-neutral-200 text-base md:text-lg flex-1">{item}</span>
+                                                    <div className="flex gap-2 shrink-0">
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newSels = [...tfSelections]; newSels[idx] = true; setTfSelections(newSels);
+                                                            }}
+                                                            className={`px-6 py-2 rounded-lg font-bold border-2 transition-all ${tfSelections[idx] === true ? 'bg-green-600 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]' : 'bg-neutral-900 border-neutral-700 text-neutral-500 hover:border-green-800'}`}
+                                                        >
+                                                            ĐÚNG
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const newSels = [...tfSelections]; newSels[idx] = false; setTfSelections(newSels);
+                                                            }}
+                                                            className={`px-6 py-2 rounded-lg font-bold border-2 transition-all ${tfSelections[idx] === false ? 'bg-red-600 border-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-neutral-900 border-neutral-700 text-neutral-500 hover:border-red-800'}`}
+                                                        >
+                                                            SAI
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div className="p-6 md:p-8 bg-neutral-950 border-t border-white/5 flex justify-center">
+                                    {!feedback ? (
+                                        <button 
+                                            className={`w-full md:w-1/3 py-4 rounded-xl font-bold text-xl transition-all shadow-lg transform 
+                                                ${(currentQ.type === 'mcq' && selectedOption !== null) || (currentQ.type === 'tf' && currentQ.items && tfSelections.length === currentQ.items.length && !tfSelections.includes(undefined) && !tfSelections.includes(null))
+                                                    ? 'bg-blue-600 text-white hover:bg-blue-500 hover:-translate-y-1 shadow-[0_0_20px_rgba(37,99,235,0.4)]' 
+                                                    : 'bg-neutral-800 text-neutral-600 cursor-not-allowed border border-neutral-700'}`} 
+                                            onClick={handleAnswer}
+                                            disabled={currentQ.type === 'mcq' ? selectedOption === null : (tfSelections.length !== (currentQ.items?.length || 0) || tfSelections.includes(undefined))}
+                                        >
+                                            TRẢ LỜI
+                                        </button>
+                                    ) : (
+                                        <div className={`w-full py-4 rounded-xl text-center font-bold text-2xl animate-bounce shadow-lg border ${feedback === 'correct' ? 'bg-green-900/50 border-green-500 text-green-400' : 'bg-red-900/50 border-red-500 text-red-400'}`}>
+                                            {feedback === 'correct' ? '🎉 CHÍNH XÁC! TUYỆT VỜI!' : '❌ SAI RỒI! CỐ GẮNG LÊN!'}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* END SCREEN */}
+                    {gameState === 'END' && (
+                        <div className="absolute inset-0 z-50 flex flex-col items-center justify-start bg-black/95 p-4 pt-32 overflow-y-auto custom-scroll">
+                            <div className="w-full max-w-lg flex flex-col items-center text-center animate-in zoom-in duration-500">
+                                <div className="text-9xl mb-6 animate-bounce drop-shadow-[0_0_30px_rgba(255,215,0,0.6)] filter brightness-110">🏆</div>
+                                <h1 className="text-2xl md:text-4xl text-yellow-400 font-[Coiny] mb-8 drop-shadow-[0_5px_0_#854d0e] tracking-widest">Chiến thắng</h1>
+                                
+                                <div className="bg-neutral-900/80 backdrop-blur-md p-10 rounded-[2rem] border border-yellow-500/30 mb-10 w-full shadow-[0_0_60px_rgba(234,179,8,0.15)] relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 animate-pulse"></div>
+                                    <p className="text-3xl text-white mb-3 font-bold">Dũng sĩ <span className="text-cyan-400">{playerName}</span></p>
+                                    <p className="text-neutral-400 text-lg mb-8">Đã giải cứu Công chúa & Vương quốc!</p>
+                                    <div className="text-7xl font-black text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)] font-mono tracking-tighter group-hover:scale-110 transition-transform">{score}</div>
+                                    <div className="text-sm text-neutral-500 mt-2 uppercase tracking-[0.3em]">Tổng điểm</div>
+                                </div>
+                                
+                                <button className="px-12 py-5 bg-white text-black font-bold text-xl rounded-full shadow-[0_0_30px_rgba(255,255,255,0.4)] hover:scale-105 transition-all hover:bg-gray-100 border-4 border-transparent hover:border-yellow-400" onClick={() => { setLevel(1); setScore(0); setQuestionsAnsweredInLevel(0); setGameState('START'); }}>CHƠI LẠI TỪ ĐẦU ↺</button>
                             </div>
                         </div>
                     )}
